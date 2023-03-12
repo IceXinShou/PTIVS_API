@@ -13,7 +13,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation group: 'io.netty', name: 'netty-all', version: '4.1.89.Final'
-
+    implementation group: 'org.json', name: 'json', version: '20230227'
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.4'
 }
 
 test {
