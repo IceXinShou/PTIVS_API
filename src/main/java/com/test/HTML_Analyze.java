@@ -176,6 +176,43 @@ public class HTML_Analyze {
         return output;
     }
 
+
+    public static JSONObject getClassTable(String responseContent) {
+        JSONObject output = new JSONObject();
+
+        try {
+            Document doc = Jsoup.parse(responseContent);
+            Elements tables = doc.getElementsByTag("table");
+            output.put("profile", getProfile(tables.get(0).getElementsByTag("tr")));
+
+            JSONArray detailJSON = new JSONArray();
+            output.put("detail", detailJSON);
+            Elements detailRaw = tables.get(2).getElementsByTag("tr");
+            System.out.println(detailRaw);
+//            for (int i = 1; i < detailRaw.size(); i++) {
+//                JSONObject tmp = new JSONObject();
+//                detailJSON.put(tmp);
+//
+//                Elements children = detailRaw.get(i).children();
+//
+//                String semester = children.get(0).text().trim().split("學年")[0];
+//                if (children.get(1).text().trim().equals("第一學期")) {
+//                    semester += "-1";
+//                } else if (children.get(1).text().trim().equals("第二學期")) {
+//                    semester += "-2";
+//                }
+//
+//                tmp.put("semester", semester);
+//                tmp.put("name", children.get(2).text().trim());
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return output;
+    }
+
     private static int getInt(String inp) {
         if (inp.equals(""))
             return 0;
