@@ -8,11 +8,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.*;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static com.test.HTML_Analyze.*;
@@ -35,12 +30,10 @@ public class Main {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(new HttpServerInitializer());
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new HttpServerInitializer());
 
             Channel ch = b.bind(port).sync().channel();
-            System.out.println("Server started on port " + port);
+            System.out.println("Server started: \nlocalhost:" + port + '\n');
 
             ch.closeFuture().sync();
         } finally {
@@ -51,7 +44,7 @@ public class Main {
 
     private static class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         @Override
-        protected void initChannel(SocketChannel ch) throws Exception {
+        protected void initChannel(SocketChannel ch) {
             ChannelPipeline pipeline = ch.pipeline();
             pipeline.addLast("codec", new HttpServerCodec());
             pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024));
@@ -77,7 +70,7 @@ public class Main {
             String responseContent = null;
 
             String[] args = uri.split("/");
-            if (!args[1].equals("ptivs") || method != HttpMethod.GET) {
+            if (args.length >= 3 && !args[1].equals("ptivs") || method != HttpMethod.GET) {
                 notFound(ctx);
                 return;
             }
@@ -157,13 +150,25 @@ public class Main {
 
                 case "history_score": {
                     // 歷年成績 010110
-                    responseContent = login.getPageData("010110");
+//                    responseContent = login.getPageData("010110");
+                    JSONObject data = getHistoryScore(login.getPageData("010110"));
+                    if (data != null) {
+                        api.responseJSON.put("data", data);
+                    } else {
+                        api.errors.add("cannot get data");
+                    }
                     break;
                 }
 
                 case "class_table": {
                     // 課表 010130
-                    responseContent = login.getPageData("010130");
+                    JSONObject data = getClassTable(login.getPageData("010130"));
+                    if (data != null) {
+                        api.responseJSON.put("data", data);
+                    } else {
+                        api.errors.add("cannot get data");
+                    }
+
                     break;
                 }
 
@@ -172,6 +177,9 @@ public class Main {
                     return;
                 }
             }
+
+            if (responseContent != null)
+                System.out.println(responseContent);
 
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }

@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class API_Response {
+    private final ChannelHandlerContext ctx;
     public List<String> errors = new ArrayList<>();
     public List<String> warnings = new ArrayList<>();
     public JSONObject responseJSON = new JSONObject("{\"success\":true}");
-    private final ChannelHandlerContext ctx;
 
     public API_Response(ChannelHandlerContext ctx) {
         this.ctx = ctx;
