@@ -33,7 +33,7 @@ public class Main {
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new HttpServerInitializer());
 
             Channel ch = b.bind(port).sync().channel();
-            System.out.println("Server started on port " + port);
+            System.out.println("Server started: \nlocalhost:" + port + '\n');
 
             ch.closeFuture().sync();
         } finally {
@@ -70,7 +70,7 @@ public class Main {
             String responseContent = null;
 
             String[] args = uri.split("/");
-            if (!args[1].equals("ptivs") || method != HttpMethod.GET) {
+            if (args.length >= 3 && !args[1].equals("ptivs") || method != HttpMethod.GET) {
                 notFound(ctx);
                 return;
             }
@@ -150,7 +150,13 @@ public class Main {
 
                 case "history_score": {
                     // 歷年成績 010110
-                    responseContent = login.getPageData("010110");
+//                    responseContent = login.getPageData("010110");
+                    JSONObject data = getHistoryScore(login.getPageData("010110"));
+                    if (data != null) {
+                        api.responseJSON.put("data", data);
+                    } else {
+                        api.errors.add("cannot get data");
+                    }
                     break;
                 }
 
@@ -171,6 +177,9 @@ public class Main {
                     return;
                 }
             }
+
+            if (responseContent != null)
+                System.out.println(responseContent);
 
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
