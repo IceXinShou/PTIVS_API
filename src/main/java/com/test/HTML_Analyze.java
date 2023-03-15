@@ -6,7 +6,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class HTML_Analyze {
+    public static Map<String, JSONObject> profileData = new HashMap<>();
 
     public static JSONObject getProfile(Elements userDatas) {
         JSONObject output = new JSONObject();
@@ -18,13 +22,17 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static JSONObject getHistoryRewards(final String responseContent) {
+    public static JSONObject getHistoryRewards(String responseContent, final String id) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            output.put("profile", getProfile(tables.get(0).getElementsByTag("tr")));
+            JSONObject profile = profileData.getOrDefault(
+                    id,
+                    getProfile(tables.get(0).getElementsByTag("tr"))
+            );
+            output.put("profile", profile);
 
             // put preview data
             JSONArray previewJSON = new JSONArray();
@@ -103,13 +111,18 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static JSONObject getClubs(final String responseContent) {
+    public static JSONObject getClubs(final String responseContent, final String id) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            output.put("profile", getProfile(tables.get(0).getElementsByTag("tr")));
+
+            JSONObject profile = profileData.getOrDefault(
+                    id,
+                    getProfile(tables.get(0).getElementsByTag("tr"))
+            );
+            output.put("profile", profile);
 
             JSONArray detailJSON = new JSONArray();
             output.put("detail", detailJSON);
@@ -141,13 +154,18 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static JSONObject getCadres(final String responseContent) {
+    public static JSONObject getCadres(final String responseContent, final String id) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            output.put("profile", getProfile(tables.get(0).getElementsByTag("tr")));
+
+            JSONObject profile = profileData.getOrDefault(
+                    id,
+                    getProfile(tables.get(0).getElementsByTag("tr"))
+            );
+            output.put("profile", profile);
 
             JSONArray detailJSON = new JSONArray();
             output.put("detail", detailJSON);
@@ -176,14 +194,19 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static JSONObject getClassTable(String responseContent) {
+    public static JSONObject getClassTable(final String responseContent, final String id) {
         JSONObject output = new JSONObject();
         String[] dayTitles = new String[]{"星期一", "星期二", "星期三", "星期四", "星期五"};
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            output.put("profile", getProfile(tables.get(0).getElementsByTag("tr")));
+
+            JSONObject profile = profileData.getOrDefault(
+                    id,
+                    getProfile(tables.get(0).getElementsByTag("tr"))
+            );
+            output.put("profile", profile);
 
             JSONObject detailJSON = new JSONObject();
             output.put("detail", detailJSON);
@@ -222,18 +245,38 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static JSONObject getHistoryScore(String responseContent) {
+    public static JSONObject getHistoryScore(final String responseContent, final String id) {
         JSONObject output = new JSONObject();
 
         try {
+
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            System.out.println(tables);
-            output.put("profile", getProfile(tables.get(0).getElementsByTag("tr")));
+//            System.out.println(doc);
+//            System.out.println(tables);
 
-//            JSONObject detailJSON = new JSONObject();
-//            output.put("detail", detailJSON);
+            JSONObject profile = profileData.getOrDefault(
+                    id,
+                    getProfile(tables.get(0).getElementsByTag("tr"))
+            );
+            output.put("profile", profile);
+
+            JSONArray detailJSON = new JSONArray();
+            output.put("detail", detailJSON);
+
+
+            Elements e = tables.get(2).getElementsByTag("tbody");
+
+            System.out.println(e);
+//            for (Element i : tables.get(2).getElementsByTag("tr")) {
+//                System.out.println(i.getElementsByTag("td") + "\n\n ------------------------------- \n\n");
+//            }
+
+
+//            tables.get(2).getElementsByTag("tr").get(0).
+
 //            Elements detailRaw = tables.get(2).getElementsByTag("tr");
+
 
         } catch (Exception e) {
             e.printStackTrace();

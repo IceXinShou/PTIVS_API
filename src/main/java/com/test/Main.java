@@ -70,10 +70,12 @@ public class Main {
             String responseContent = null;
 
             String[] args = uri.split("/");
-            if (args.length >= 3 && !args[1].equals("ptivs") || method != HttpMethod.GET) {
+            if (args.length < 3 || uri.equals("/favicon.ico") || !args[1].equals("ptivs") || method != HttpMethod.GET) {
                 notFound(ctx);
                 return;
             }
+
+            System.out.println(method + ": " + uri);
 
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
             String id = queryStringDecoder.parameters().get("name").get(0);
@@ -101,7 +103,7 @@ public class Main {
 
                 case "history_rewards": {
                     // 歷年獎懲 010050
-                    JSONObject data = getHistoryRewards(login.getPageData("010050"));
+                    JSONObject data = getHistoryRewards(login.getPageData("010050"), id);
                     if (data != null) {
                         api.responseJSON.put("data", data);
                     } else {
@@ -120,7 +122,7 @@ public class Main {
 
                 case "clubs": {
                     // 參與社團 010070
-                    JSONObject data = getClubs(login.getPageData("010070"));
+                    JSONObject data = getClubs(login.getPageData("010070"), id);
                     if (data != null) {
                         api.responseJSON.put("data", data);
                     } else {
@@ -132,7 +134,7 @@ public class Main {
 
                 case "cadres": {
                     // 擔任幹部 010080
-                    JSONObject data = getCadres(login.getPageData("010080"));
+                    JSONObject data = getCadres(login.getPageData("010080"), id);
                     if (data != null) {
                         api.responseJSON.put("data", data);
                     } else {
@@ -150,8 +152,7 @@ public class Main {
 
                 case "history_score": {
                     // 歷年成績 010110
-//                    responseContent = login.getPageData("010110");
-                    JSONObject data = getHistoryScore(login.getPageData("010110"));
+                    JSONObject data = getHistoryScore(login.getPageData("010110"), id);
                     if (data != null) {
                         api.responseJSON.put("data", data);
                     } else {
@@ -162,7 +163,7 @@ public class Main {
 
                 case "class_table": {
                     // 課表 010130
-                    JSONObject data = getClassTable(login.getPageData("010130"));
+                    JSONObject data = getClassTable(login.getPageData("010130"), id);
                     if (data != null) {
                         api.responseJSON.put("data", data);
                     } else {
