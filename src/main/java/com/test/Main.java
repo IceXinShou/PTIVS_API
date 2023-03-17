@@ -78,115 +78,119 @@ public class Main {
             System.out.println(method + ": " + uri);
 
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
-            String id = queryStringDecoder.parameters().get("name").get(0);
-            String pwd = queryStringDecoder.parameters().get("pwd").get(0);
-            login.onLogin(api, id, pwd);
+            String id = "", pwd = "";
+            try {
+                id = queryStringDecoder.parameters().get("name").get(0);
+                pwd = queryStringDecoder.parameters().get("pwd").get(0);
+            } catch (Exception e) {
+                api.errors.add("cannot get parameters: 'name' or 'pwd'");
+            }
+            if (api.errors.isEmpty()) {
+                login.onLogin(api, id, pwd);
 
-            switch (args[2]) {
-                case "absent": {
-                    // 學期缺曠課 010010
-                    responseContent = login.getPageData("010010");
-                    break;
-                }
-
-                case "history_absent": {
-                    // 歷年缺曠課 010030
-                    responseContent = login.getPageData("010030");
-                    break;
-                }
-
-                case "rewards": {
-                    // 學期獎懲 010040
-                    responseContent = login.getPageData("010040");
-                    break;
-                }
-
-                case "history_rewards": {
-                    // 歷年獎懲 010050
-                    JSONObject data = getHistoryRewards(login.getPageData("010050"), id);
-                    if (data != null) {
-                        api.responseJSON.put("data", data);
-                    } else {
-                        api.errors.add("cannot get data");
+                switch (args[2]) {
+                    case "absent": {
+                        // 學期缺曠課 010010
+                        responseContent = login.getPageData("010010");
+                        break;
                     }
 
-                    break;
-                }
-
-                case "punished_cancel_log": {
-                    // 銷過紀錄 010060
-                    JSONObject data = getPunishedCancelLog(login.getPageData("010060"), id);
-                    if (data != null) {
-                        api.responseJSON.put("data", data);
-                    } else {
-                        api.errors.add("cannot get data");
+                    case "history_absent": {
+                        // 歷年缺曠課 010030
+                        responseContent = login.getPageData("010030");
+                        break;
                     }
 
-                    break;
-                }
-
-
-                case "clubs": {
-                    // 參與社團 010070
-                    JSONObject data = getClubs(login.getPageData("010070"), id);
-                    if (data != null) {
-                        api.responseJSON.put("data", data);
-                    } else {
-                        api.errors.add("cannot get data");
+                    case "rewards": {
+                        // 學期獎懲 010040
+                        responseContent = login.getPageData("010040");
+                        break;
                     }
 
-                    break;
-                }
+                    case "history_rewards": {
+                        // 歷年獎懲 010050
+                        JSONObject data = getHistoryRewards(login.getPageData("010050"), id);
+                        if (data != null) {
+                            api.responseJSON.put("data", data);
+                        } else {
+                            api.errors.add("cannot get data");
+                        }
 
-                case "cadres": {
-                    // 擔任幹部 010080
-                    JSONObject data = getCadres(login.getPageData("010080"), id);
-                    if (data != null) {
-                        api.responseJSON.put("data", data);
-                    } else {
-                        api.errors.add("cannot get data");
+                        break;
                     }
 
-                    break;
-                }
+                    case "punished_cancel_log": {
+                        // 銷過紀錄 010060
+                        JSONObject data = getPunishedCancelLog(login.getPageData("010060"), id);
+                        if (data != null) {
+                            api.responseJSON.put("data", data);
+                        } else {
+                            api.errors.add("cannot get data");
+                        }
 
-                case "score": {
-                    // 學期成績 010090
-                    responseContent = login.getPageData("010090");
-                    break;
-                }
-
-                case "history_score": {
-                    // 歷年成績 010110
-                    JSONObject data = getHistoryScore(login.getPageData("010110"), id);
-                    if (data != null) {
-                        api.responseJSON.put("data", data);
-                    } else {
-                        api.errors.add("cannot get data");
-                    }
-                    break;
-                }
-
-                case "class_table": {
-                    // 課表 010130
-                    JSONObject data = getClassTable(login.getPageData("010130"), id);
-                    if (data != null) {
-                        api.responseJSON.put("data", data);
-                    } else {
-                        api.errors.add("cannot get data");
+                        break;
                     }
 
-                    break;
-                }
 
-                default: {
-                    notFound(ctx);
-                    return;
+                    case "clubs": {
+                        // 參與社團 010070
+                        JSONObject data = getClubs(login.getPageData("010070"), id);
+                        if (data != null) {
+                            api.responseJSON.put("data", data);
+                        } else {
+                            api.errors.add("cannot get data");
+                        }
+
+                        break;
+                    }
+
+                    case "cadres": {
+                        // 擔任幹部 010080
+                        JSONObject data = getCadres(login.getPageData("010080"), id);
+                        if (data != null) {
+                            api.responseJSON.put("data", data);
+                        } else {
+                            api.errors.add("cannot get data");
+                        }
+
+                        break;
+                    }
+
+                    case "score": {
+                        // 學期成績 010090
+                        responseContent = login.getPageData("010090");
+                        break;
+                    }
+
+                    case "history_score": {
+                        // 歷年成績 010110
+                        JSONObject data = getHistoryScore(login.getPageData("010110"), id);
+                        if (data != null) {
+                            api.responseJSON.put("data", data);
+                        } else {
+                            api.errors.add("cannot get data");
+                        }
+                        break;
+                    }
+
+                    case "class_table": {
+                        // 課表 010130
+                        JSONObject data = getClassTable(login.getPageData("010130"), id);
+                        if (data != null) {
+                            api.responseJSON.put("data", data);
+                        } else {
+                            api.errors.add("cannot get data");
+                        }
+
+                        break;
+                    }
+
+                    default: {
+                        notFound(ctx);
+                        return;
+                    }
                 }
             }
-
-            if (responseContent != null)
-                System.out.println(responseContent);
 
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
