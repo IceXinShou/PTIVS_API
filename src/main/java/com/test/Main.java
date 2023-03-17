@@ -113,9 +113,15 @@ public class Main {
                     break;
                 }
 
-                case "punished_log": {
+                case "punished_cancel_log": {
                     // 銷過紀錄 010060
-                    responseContent = login.getPageData("010060");
+                    JSONObject data = getPunishedCancelLog(login.getPageData("010060"), id);
+                    if (data != null) {
+                        api.responseJSON.put("data", data);
+                    } else {
+                        api.errors.add("cannot get data");
+                    }
+
                     break;
                 }
 
