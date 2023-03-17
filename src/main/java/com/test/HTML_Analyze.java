@@ -114,12 +114,11 @@ public class HTML_Analyze {
                     getProfile(tables.get(0).getElementsByTag("tr"))
             );
             output.put("profile", profile);
-            System.out.println(tables);
-            // put reward detail
+
             JSONArray detailARY = new JSONArray();
             output.put("detail", detailARY);
-            Elements detailRaw = tables.get(1).getElementsByTag("tr");
 
+            Elements detailRaw = tables.get(1).getElementsByTag("tr");
             for (int i = 2; i < detailRaw.size(); i++) {
                 Elements td = detailRaw.get(i).children();
                 // no log
