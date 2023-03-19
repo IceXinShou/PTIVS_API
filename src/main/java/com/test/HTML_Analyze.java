@@ -7,24 +7,31 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class HTML_Analyze {
-    public static Map<String, JSONObject> profileData = new HashMap<>();
 
 
-    public static @Nullable JSONObject getHistoryRewards(String responseContent, final String id) {
+    public static @Nullable JSONObject getHistoryAbsent(final String responseContent) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            JSONObject profile = profileData.getOrDefault(
-                    id,
-                    getProfile(tables.get(0).getElementsByTag("tr"))
-            );
-            output.put("profile", profile);
+//            System.out.println(tables);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return output;
+    }
+
+    public static @Nullable JSONObject getHistoryRewards(final String responseContent) {
+        JSONObject output = new JSONObject();
+
+        try {
+            Document doc = Jsoup.parse(responseContent);
+            Elements tables = doc.getElementsByTag("table");
 
             // put preview data
             JSONArray previewJSON = new JSONArray();
@@ -33,10 +40,9 @@ public class HTML_Analyze {
             for (int i = 1; i < previewRaw.size() - 3; ++i) {
                 JSONObject tmp = new JSONObject();
                 Elements children = previewRaw.get(i).children();
-                // 110-1
-                tmp.put("semester", children.get(0).text().trim() +
-                        '-' + children.get(1).text().trim());
 
+                tmp.put("semester", Integer.parseInt(children.get(0).text().trim()));
+                tmp.put("semester2", Integer.parseInt(children.get(1).text().trim()));
                 tmp.put("major_merit", getInt(children.get(2).text().trim()));
                 tmp.put("minor_merit", getInt(children.get(3).text().trim()));
                 tmp.put("commendation", getInt(children.get(4).text().trim()));
@@ -103,17 +109,12 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject getPunishedCancelLog(String responseContent, final String id) {
+    public static @Nullable JSONObject getPunishedCancelLog(final String responseContent) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-            JSONObject profile = profileData.getOrDefault(
-                    id,
-                    getProfile(tables.get(0).getElementsByTag("tr"))
-            );
-            output.put("profile", profile);
 
             JSONArray detailARY = new JSONArray();
             output.put("detail", detailARY);
@@ -147,18 +148,12 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject getClubs(final String responseContent, final String id) {
+    public static @Nullable JSONObject getClubs(final String responseContent) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-
-            JSONObject profile = profileData.getOrDefault(
-                    id,
-                    getProfile(tables.get(0).getElementsByTag("tr"))
-            );
-            output.put("profile", profile);
 
             JSONArray detailJSON = new JSONArray();
             output.put("detail", detailJSON);
@@ -168,15 +163,8 @@ public class HTML_Analyze {
                 detailJSON.put(tmp);
 
                 Elements children = detailRaw.get(i).children();
-
-                String semester = children.get(0).text().trim().split("學年")[0];
-                if (children.get(1).text().trim().equals("第一學期")) {
-                    semester += "-1";
-                } else if (children.get(1).text().trim().equals("第二學期")) {
-                    semester += "-2";
-                }
-
-                tmp.put("semester", semester);
+                tmp.put("semester", Integer.parseInt(children.get(0).text().trim().split("學年")[0]));
+                tmp.put("semester2", children.get(1).text().trim().equals("第一學期") ? 1 : 2);
                 tmp.put("name", children.get(2).text().trim());
                 tmp.put("group", children.get(3).text().trim());
                 tmp.put("position", children.get(5).text().trim());
@@ -190,18 +178,12 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject getCadres(final String responseContent, final String id) {
+    public static @Nullable JSONObject getCadres(final String responseContent) {
         JSONObject output = new JSONObject();
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-
-            JSONObject profile = profileData.getOrDefault(
-                    id,
-                    getProfile(tables.get(0).getElementsByTag("tr"))
-            );
-            output.put("profile", profile);
 
             JSONArray detailJSON = new JSONArray();
             output.put("detail", detailJSON);
@@ -212,14 +194,8 @@ public class HTML_Analyze {
 
                 Elements children = detailRaw.get(i).children();
 
-                String semester = children.get(0).text().trim().split("學年")[0];
-                if (children.get(1).text().trim().equals("第一學期")) {
-                    semester += "-1";
-                } else if (children.get(1).text().trim().equals("第二學期")) {
-                    semester += "-2";
-                }
-
-                tmp.put("semester", semester);
+                tmp.put("semester", Integer.parseInt(children.get(0).text().trim().split("學年")[0]));
+                tmp.put("semester2", children.get(1).text().trim().equals("第一學期") ? 1 : 2);
                 tmp.put("name", children.get(2).text().trim());
             }
         } catch (Exception e) {
@@ -230,19 +206,13 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject getClassTable(final String responseContent, final String id) {
+    public static @Nullable JSONObject getClassTable(final String responseContent) {
         JSONObject output = new JSONObject();
         String[] dayTitles = new String[]{"星期一", "星期二", "星期三", "星期四", "星期五"};
 
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-
-            JSONObject profile = profileData.getOrDefault(
-                    id,
-                    getProfile(tables.get(0).getElementsByTag("tr"))
-            );
-            output.put("profile", profile);
 
             JSONObject detailJSON = new JSONObject();
             output.put("detail", detailJSON);
@@ -289,12 +259,6 @@ public class HTML_Analyze {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
-            JSONObject profile = profileData.getOrDefault(
-                    id,
-                    getProfile(tables.get(0).getElementsByTag("tr"))
-            );
-            output.put("profile", profile);
-
             JSONArray detailJSON = new JSONArray();
             output.put("detail", detailJSON);
 
@@ -315,9 +279,9 @@ public class HTML_Analyze {
                 Elements teacherResponse2_tr = tr_sum.get(13).children();
                 String[] rankTmp = rank_tr.get(1).text().trim().split(" ");
 
-                curObj.put("semester", String.join("-",
-                        tr.get(0).text().trim().replaceAll("[^-0-9]+", " ").trim().split(" ")
-                )); // convert "110 學年度 第 1 學期" to "110-1"
+                String[] semesterStr = tr.get(0).text().trim().split(" "); // "110 學年度 第 1 學期"
+                curObj.put("semester", Integer.parseInt(semesterStr[0]));
+                curObj.put("semester2", Integer.parseInt(semesterStr[3]));
                 curObj.put("try_credit", Integer.parseInt(credits_tr1.get(0).text().trim()));
                 curObj.put("try_mandatory_credit", Integer.parseInt(credits_tr1.get(1).text().trim()));
                 curObj.put("try_elective_credit", Integer.parseInt(credits_tr1.get(2).text().trim()));
@@ -364,17 +328,6 @@ public class HTML_Analyze {
             return null;
         }
 
-        return output;
-    }
-
-
-    public static JSONObject getProfile(Elements userDatas) {
-        JSONObject output = new JSONObject();
-        Elements userData = userDatas.last().children();
-        output.put("name", userDatas.first().child(0).text().trim().split(" ： ")[1]);
-        output.put("semester", userData.get(0).text().trim());
-        output.put("class", userData.get(1).text().trim());
-        output.put("id", userData.get(2).text().trim().split("：")[1]);
         return output;
     }
 
