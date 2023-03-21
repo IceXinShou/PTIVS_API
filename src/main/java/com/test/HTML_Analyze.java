@@ -41,16 +41,16 @@ public class HTML_Analyze {
                 JSONObject tmp = new JSONObject();
                 Elements children = previewRaw.get(i).children();
 
-                tmp.put("semester", Integer.parseInt(children.get(0).text().trim()));
+                tmp.put("semester1", Integer.parseInt(children.get(0).text().trim()));
                 tmp.put("semester2", Integer.parseInt(children.get(1).text().trim()));
                 tmp.put("major_merit", getInt(children.get(2).text().trim()));
                 tmp.put("minor_merit", getInt(children.get(3).text().trim()));
                 tmp.put("commendation", getInt(children.get(4).text().trim()));
-                tmp.put("good_point", getInt(children.get(5).text().trim()));
+                tmp.put("pros", getInt(children.get(5).text().trim()));
                 tmp.put("major_demerit", getInt(children.get(6).text().trim()));
                 tmp.put("minor_demerit", getInt(children.get(7).text().trim()));
                 tmp.put("admonition", getInt(children.get(8).text().trim()));
-                tmp.put("bad_point", getInt(children.get(9).text().trim()));
+                tmp.put("cons", getInt(children.get(9).text().trim()));
 
                 previewJSON.put(tmp);
             }
@@ -67,20 +67,20 @@ public class HTML_Analyze {
                 Elements children = detailRaw.get(detailPos).children();
                 if (children.size() == 1) break;
 
-                tmp.put("check_time", getTimeFormat(children.get(0).text().trim()));
-                tmp.put("occur_time", getTimeFormat(children.get(1).text().trim()));
-                tmp.put("description", children.get(2).text().trim());
-                tmp.put("type", children.get(3).text().trim());
+                tmp.put("recording_date", getTimeFormat(children.get(0).text().trim()));
+                tmp.put("occurence_date", getTimeFormat(children.get(1).text().trim()));
+                tmp.put("content", children.get(2).text().trim());
+                tmp.put("award", children.get(3).text().trim());
                 tmp.put("major_merit", getInt(children.get(4).text().trim()));
                 tmp.put("minor_merit", getInt(children.get(5).text().trim()));
                 tmp.put("commendation", getInt(children.get(6).text().trim()));
-                tmp.put("good_point", getInt(children.get(7).text().trim()));
-                tmp.put("add_score", getInt(children.get(8).text().trim()));
-                tmp.put("note", children.get(11).text().trim());
+                tmp.put("pros", getInt(children.get(7).text().trim()));
+                tmp.put("extra_grade", getInt(children.get(8).text().trim()));
+                tmp.put("remark", children.get(11).text().trim());
             }
 
             JSONArray punishDetailJSON = new JSONArray();
-            output.put("punish_detail", punishDetailJSON);
+            output.put("punishment_detail", punishDetailJSON);
             for (detailPos += 2; detailPos < detailRaw.size(); ++detailPos) {
                 JSONObject tmp = new JSONObject();
                 punishDetailJSON.put(tmp);
@@ -89,16 +89,16 @@ public class HTML_Analyze {
                     // no punished
                     break;
                 }
-                tmp.put("check_time", getTimeFormat(children.get(0).text().trim()));
-                tmp.put("occur_time", getTimeFormat(children.get(1).text().trim()));
-                tmp.put("description", children.get(2).text().trim());
-                tmp.put("type", children.get(3).text().trim());
+                tmp.put("recording_date", getTimeFormat(children.get(0).text().trim()));
+                tmp.put("occurence_date", getTimeFormat(children.get(1).text().trim()));
+                tmp.put("content", children.get(2).text().trim());
+                tmp.put("penalty", children.get(3).text().trim());
                 tmp.put("major_demerit", getInt(children.get(4).text().trim()));
                 tmp.put("minor_demerit", getInt(children.get(5).text().trim()));
                 tmp.put("admonition", getInt(children.get(6).text().trim()));
-                tmp.put("bad_point", getInt(children.get(7).text().trim()));
-                tmp.put("remove_score", getInt(children.get(8).text().trim()));
-                tmp.put("note", children.get(11).text().trim());
+                tmp.put("cons", getInt(children.get(7).text().trim()));
+                tmp.put("deduct_grade", getInt(children.get(8).text().trim()));
+                tmp.put("remark", children.get(11).text().trim());
             }
 
         } catch (Exception e) {
