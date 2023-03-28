@@ -43,7 +43,7 @@ public class LoginManager {
         }
     }
 
-    public String getPageData(final String pageId) {
+    public String fetchPageData(final String pageId) {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL("https://sctnank.ptivs.tn.edu.tw/skyweb/fnc.asp").openConnection();
 

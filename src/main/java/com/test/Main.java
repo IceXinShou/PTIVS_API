@@ -18,8 +18,8 @@ import static com.test.HTML_Analyze.*;
 
 public class Main {
 
-    private final int port;
     private static final Map<String, JSONObject> profileData = new HashMap<>();
+    private final int port;
 
     public Main(int port) {
         this.port = port;
@@ -94,106 +94,66 @@ public class Main {
                 login.onLogin(api, id, pwd);
 
                 switch (args[2]) {
-                    case "absent": {
+//                    case "absent": {
                         // 學期缺曠課 010010
+//                        putData("010010", login, api);
 //                        responseContent = login.getPageData("010010");
-                        break;
-                    }
+//                        break;
+//                    }
 
-                    case "history_absent": {
-                        // 歷年缺曠課 010030
-                        JSONObject data = getHistoryAbsent(login.getPageData("010030"));
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
+//                    case "history_absent": {
+//                        // 歷年缺曠課 010030
+//                        putData(getHistoryAbsent(login.fetchPageData("010030")), api);
+//                        break;
+//                    }
 
-                        break;
-                    }
-
-                    case "rewards": {
+//                    case "rewards": {
                         // 學期獎懲 010040
 //                        responseContent = login.getPageData("010040");
-                        break;
-                    }
+//                        break;
+//                    }
+
+//                    case "score": {
+                    // 學期成績 010090
+//                        putData("010090", login, api);
+//                        responseContent = login.getPageData("010090");
+//                        break;
+//                    }
 
                     case "history_rewards": {
                         // 歷年獎懲 010050
-
-                        JSONObject data = getHistoryRewards(login.getPageData("010050"));
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
-
+                        putData(getHistoryRewards(login.fetchPageData("010050")), api);
                         break;
                     }
 
                     case "punished_cancel_log": {
                         // 銷過紀錄 010060
-                        JSONObject data = getPunishedCancelLog(login.getPageData("010060"));
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
-
+                        putData(getPunishedCancelLog(login.fetchPageData("010060")), api);
                         break;
                     }
 
 
                     case "clubs": {
                         // 參與社團 010070
-                        JSONObject data = getClubs(login.getPageData("010070"));
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
-
+                        putData(getClubs(login.fetchPageData("010070")), api);
                         break;
                     }
 
                     case "cadres": {
                         // 擔任幹部 010080
-                        JSONObject data = getCadres(login.getPageData("010080"));
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
-
-                        break;
-                    }
-
-                    case "score": {
-                        // 學期成績 010090
-//                        responseContent = login.getPageData("010090");
+                        putData(getCadres(login.fetchPageData("010080")), api);
                         break;
                     }
 
                     case "history_score": {
                         // 歷年成績 010110
-                        JSONObject data = getHistoryScore(login.getPageData("010110"), id);
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
+                        putData(getHistoryScore(login.fetchPageData("010110")), api);
                         break;
                     }
 
                     case "class_table": {
                         // 課表 010130
-                        JSONObject data = getClassTable(login.getPageData("010130"));
-                        if (data != null) {
-                            api.responseJSON.put("data", data);
-                        } else {
-                            api.errors.add("cannot get data");
-                        }
-
+                        putData(getClassTable(login.fetchPageData("010130")), api);
                         break;
                     }
 
@@ -205,14 +165,25 @@ public class Main {
             }
 
             if (api.responseJSON.has("data")) {
-                api.responseJSON.getJSONObject("data").put("profile", profileData.getOrDefault(id, getProfile(login)));
+                if (!profileData.containsKey(id))
+                    profileData.put(id, getProfile(login));
+
+                api.responseJSON.getJSONObject("data").put("profile", profileData.get(id));
             }
             api.responseJSON.put("time", LocalDateTime.now().toString());
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
 
+        private void putData(JSONObject data, final API_Response api) {
+            if (data != null) {
+                api.responseJSON.put("data", data);
+            } else {
+                api.errors.add("cannot get data");
+            }
+        }
+
         private JSONObject getProfile(final LoginManager login) {
-            Elements userDatas = Jsoup.parse(login.getPageData("010070")).getElementsByTag("table").get(0).getElementsByTag("tr");
+            Elements userDatas = Jsoup.parse(login.fetchPageData("010070")).getElementsByTag("table").get(0).getElementsByTag("tr");
             JSONObject output = new JSONObject();
             Elements userData = userDatas.last().children();
             String semesterStr = userData.get(0).text().trim();
@@ -232,8 +203,8 @@ public class Main {
         }
 
         private void notFound(final ChannelHandlerContext ctx) {
-            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
-            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
+                    .addListener(ChannelFutureListener.CLOSE);
         }
     }
 }

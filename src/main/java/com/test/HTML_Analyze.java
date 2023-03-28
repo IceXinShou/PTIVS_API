@@ -251,7 +251,7 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject getHistoryScore(final String responseContent, final String id) {
+    public static @Nullable JSONObject getHistoryScore(final String responseContent) {
         JSONObject output = new JSONObject();
 
         try {
