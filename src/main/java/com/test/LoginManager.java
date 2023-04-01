@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class LoginManager {
     private final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36";
 
-    public void onLogin(API_Response api, String id, String password) {
+    public boolean onLogin(API_Response api, String id, String password) {
         try {
             CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
             CookieHandler.setDefault(cookieManager);
@@ -31,6 +31,8 @@ public class LoginManager {
             if (conn.getURL().getPath().equals("/skyweb/main.asp")) {
                 // not success
                 api.errors.add("cannot login by the name and password");
+                conn.disconnect();
+                return false;
             }
 
             conn.disconnect();
@@ -38,8 +40,10 @@ public class LoginManager {
             // Required
             getUrl("https://sctnank.ptivs.tn.edu.tw/skyweb/f_head.asp");
             getUrl("https://sctnank.ptivs.tn.edu.tw/skyweb/f_left.asp");
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 

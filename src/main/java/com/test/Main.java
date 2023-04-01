@@ -90,12 +90,10 @@ public class Main {
                 api.errors.add("cannot get parameters: 'name' or 'pwd'");
             }
 
-            if (api.errors.isEmpty()) {
-                login.onLogin(api, id, pwd);
-
+            if (!api.haveError() && login.onLogin(api, id, pwd)) {
                 switch (args[2]) {
 //                    case "absent": {
-                        // 學期缺曠課 010010
+                    // 學期缺曠課 010010
 //                        putData("010010", login, api);
 //                        responseContent = login.getPageData("010010");
 //                        break;
@@ -108,52 +106,51 @@ public class Main {
 //                    }
 
 //                    case "rewards": {
-                        // 學期獎懲 010040
+                    // 學期獎懲 010040
 //                        responseContent = login.getPageData("010040");
 //                        break;
 //                    }
 
-//                    case "score": {
-                    // 學期成績 010090
-//                        putData("010090", login, api);
-//                        responseContent = login.getPageData("010090");
-//                        break;
-//                    }
+                    case "score": {
+                        // 學期成績 010090
+                        putData(readScore(login.fetchPageData("010090")), api);
+                        break;
+                    }
 
                     case "history_rewards": {
                         // 歷年獎懲 010050
-                        putData(getHistoryRewards(login.fetchPageData("010050")), api);
+                        putData(readHistoryRewards(login.fetchPageData("010050")), api);
                         break;
                     }
 
                     case "punished_cancel_log": {
                         // 銷過紀錄 010060
-                        putData(getPunishedCancelLog(login.fetchPageData("010060")), api);
+                        putData(readPunishedCancelLog(login.fetchPageData("010060")), api);
                         break;
                     }
 
 
                     case "clubs": {
                         // 參與社團 010070
-                        putData(getClubs(login.fetchPageData("010070")), api);
+                        putData(readClubs(login.fetchPageData("010070")), api);
                         break;
                     }
 
                     case "cadres": {
                         // 擔任幹部 010080
-                        putData(getCadres(login.fetchPageData("010080")), api);
+                        putData(readCadres(login.fetchPageData("010080")), api);
                         break;
                     }
 
                     case "history_score": {
                         // 歷年成績 010110
-                        putData(getHistoryScore(login.fetchPageData("010110")), api);
+                        putData(readHistoryScore(login.fetchPageData("010110")), api);
                         break;
                     }
 
                     case "class_table": {
                         // 課表 010130
-                        putData(getClassTable(login.fetchPageData("010130")), api);
+                        putData(readClassTable(login.fetchPageData("010130")), api);
                         break;
                     }
 
@@ -164,11 +161,13 @@ public class Main {
                 }
             }
 
-            if (api.responseJSON.has("data")) {
-                if (!profileData.containsKey(id))
-                    profileData.put(id, getProfile(login));
+            if (!api.haveError()) {
+                if (api.responseJSON.has("data")) {
+                    if (!profileData.containsKey(id))
+                        profileData.put(id, getProfile(login));
 
-                api.responseJSON.getJSONObject("data").put("profile", profileData.get(id));
+                    api.responseJSON.getJSONObject("data").put("profile", profileData.get(id));
+                }
             }
             api.responseJSON.put("time", LocalDateTime.now().toString());
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);

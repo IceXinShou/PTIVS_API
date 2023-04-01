@@ -20,8 +20,12 @@ public class API_Response {
         this.ctx = ctx;
     }
 
+    public boolean haveError() {
+        return !errors.isEmpty();
+    }
+
     public FullHttpResponse getResponse() {
-        if (!errors.isEmpty()) {
+        if (haveError()) {
             responseJSON.put("success", false);
             responseJSON.put("errors", new JSONArray(errors));
         }
