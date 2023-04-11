@@ -9,6 +9,37 @@ import org.jsoup.select.Elements;
 
 public class HTML_Analyze {
 
+    public static @Nullable JSONObject readAbsent(final String responseContent) {
+        JSONObject output = new JSONObject();
+
+        try {
+            Document doc = Jsoup.parse(responseContent);
+            Elements tables = doc.getElementsByTag("table");
+            System.out.println(tables);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return output;
+    }
+
+    public static @Nullable JSONObject readRewards(final String responseContent) {
+        JSONObject output = new JSONObject();
+
+        try {
+            Document doc = Jsoup.parse(responseContent);
+            Elements tables = doc.getElementsByTag("table");
+            System.out.println(tables);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return output;
+    }
 
     public static @Nullable JSONObject readHistoryAbsent(final String responseContent) {
         JSONObject output = new JSONObject();
@@ -16,7 +47,7 @@ public class HTML_Analyze {
         try {
             Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
-//            System.out.println(tables);
+            System.out.println(tables);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -92,24 +92,23 @@ public class Main {
 
             if (!api.haveError() && login.onLogin(api, id, pwd)) {
                 switch (args[2]) {
-//                    case "absent": {
-                    // 學期缺曠課 010010
-//                        putData("010010", login, api);
-//                        responseContent = login.getPageData("010010");
-//                        break;
-//                    }
+                    case "absent": {
+                        // 學期缺曠課 010010
+                        putData(readAbsent(login.fetchPageData("010010")), api);
+                        break;
+                    }
 
-//                    case "history_absent": {
-//                        // 歷年缺曠課 010030
-//                        putData(getHistoryAbsent(login.fetchPageData("010030")), api);
-//                        break;
-//                    }
+                    case "history_absent": {
+                        // 歷年缺曠課 010030
+                        putData(readHistoryAbsent(login.fetchPageData("010030")), api);
+                        break;
+                    }
 
-//                    case "rewards": {
-                    // 學期獎懲 010040
-//                        responseContent = login.getPageData("010040");
-//                        break;
-//                    }
+                    case "rewards": {
+                        // 學期獎懲 010040
+                        putData(readRewards(login.fetchPageData("010040")), api);
+                        break;
+                    }
 
                     case "score": {
                         // 學期成績 010090
@@ -172,6 +171,7 @@ public class Main {
             api.responseJSON.put("time", LocalDateTime.now().toString());
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
+
 
         private void putData(JSONObject data, final API_Response api) {
             if (data != null) {
