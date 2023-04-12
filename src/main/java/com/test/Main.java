@@ -6,10 +6,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,40 +24,54 @@ public class Main {
 
     private static final Map<String, JSONObject> profileData = new HashMap<>();
     private final int port;
+    private static String defaultID = null;
+    private static String defaultPWD = null;
 
-    public Main(int port) {
+    public Main(int port, String defaultID, String defaultPWD) {
         this.port = port;
+        Main.defaultID = defaultID;
+        Main.defaultPWD = defaultPWD;
     }
 
     public static void main(String[] args) throws Exception {
-        int port = 80;
-        new Main(port).run();
+        new Main(443, args[0], args[1]).run(new File(args[2]), new File(args[3]));
     }
 
-    public void run() throws Exception {
+    public void run(File certchainFile, File privatekeyFile) throws Exception {
+        SslContext sslCtx = SslContextBuilder.forServer(certchainFile, privatekeyFile).build();
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(new HttpServerInitializer());
 
-            Channel ch = b.bind(port).sync().channel();
+            b.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(@NotNull SocketChannel ch) {
+                            ChannelPipeline p = ch.pipeline();
+
+                            // Add SSL handler
+                            p.addLast(sslCtx.newHandler(ch.alloc()));
+
+                            // Add HTTP codec
+                            p.addLast(new HttpServerCodec());
+
+                            // Add object aggregator
+                            p.addLast(new HttpObjectAggregator(65536));
+
+                            // Add business logic handler
+                            p.addLast(new HttpServerHandler());
+                        }
+                    });
+            ChannelFuture f = b.bind(port).sync();
+
             System.out.println("Server started: \nlocalhost:" + port + '\n');
 
-            ch.closeFuture().sync();
+            f.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
-        }
-    }
-
-    private static class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
-        @Override
-        protected void initChannel(SocketChannel ch) {
-            ChannelPipeline pipeline = ch.pipeline();
-            pipeline.addLast("codec", new HttpServerCodec());
-            pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024));
-            pipeline.addLast("handler", new HttpServerHandler());
         }
     }
 
@@ -80,17 +98,24 @@ public class Main {
                 return;
             }
 
-
             QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
             String id = "", pwd = "";
             try {
-                id = queryStringDecoder.parameters().get("name").get(0);
+                id = queryStringDecoder.parameters().get("id").get(0);
                 pwd = queryStringDecoder.parameters().get("pwd").get(0);
             } catch (Exception e) {
-                api.errors.add("cannot get parameters: 'name' or 'pwd'");
+                api.errors.add("cannot get parameters: 'id' or 'pwd'");
             }
 
-            if (!api.haveError() && login.onLogin(api, id, pwd)) {
+            if (!api.haveError()) {
+                if (id.equalsIgnoreCase("testid") && pwd.equals("testpwd")) {
+                    login.onLogin(api, defaultID, defaultPWD);
+                } else {
+                    login.onLogin(api, id, pwd);
+                }
+            }
+
+            if (!api.haveError()) {
                 switch (args[2]) {
                     case "absent": {
                         // 學期缺曠課 010010
@@ -127,7 +152,6 @@ public class Main {
                         putData(readPunishedCancelLog(login.fetchPageData("010060")), api);
                         break;
                     }
-
 
                     case "clubs": {
                         // 參與社團 010070
@@ -168,6 +192,7 @@ public class Main {
                     api.responseJSON.getJSONObject("data").put("profile", profileData.get(id));
                 }
             }
+
             api.responseJSON.put("time", LocalDateTime.now().toString());
             ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
