@@ -16,6 +16,7 @@ dependencies {
     implementation group: 'io.netty', name: 'netty-all', version: '4.1.89.Final'
     implementation group: 'org.json', name: 'json', version: '20230227'
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.4'
+    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
 }
 
 test {

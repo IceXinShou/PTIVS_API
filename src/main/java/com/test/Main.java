@@ -1,5 +1,6 @@
 package com.test;
 
+import com.google.common.util.concurrent.RateLimiter;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -17,15 +18,16 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.test.HTML_Analyze.*;
 
 public class Main {
-
+    public static final ConcurrentHashMap<String, RateLimiter> rateLimiters = new ConcurrentHashMap<>();
     private static final Map<String, JSONObject> profileData = new HashMap<>();
-    private final int port;
     private static String defaultID = null;
     private static String defaultPWD = null;
+    private final int port;
 
     public Main(int port, String defaultID, String defaultPWD) {
         this.port = port;
@@ -36,6 +38,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         new Main(443, args[0], args[1]).run(new File(args[2]), new File(args[3]));
     }
+
 
     public void run(File certchainFile, File privatekeyFile) throws Exception {
         SslContext sslCtx = SslContextBuilder.forServer(certchainFile, privatekeyFile).build();
@@ -56,6 +59,9 @@ public class Main {
 
                             // Add HTTP codec
                             p.addLast(new HttpServerCodec());
+
+                            // RateLimit
+                            p.addLast(new ApiRateLimitHandler());
 
                             // Add object aggregator
                             p.addLast(new HttpObjectAggregator(65536));
@@ -218,7 +224,6 @@ public class Main {
             output.put("id", userData.get(2).text().trim().split("：")[1]);
             return output;
         }
-
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
