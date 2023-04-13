@@ -20,7 +20,6 @@ public class ApiRateLimitHandler extends ChannelDuplexHandler {
         if (msg instanceof HttpRequest) {
             HttpRequest request = (HttpRequest) msg;
             String ip = getIpAddress(ctx, request);
-            System.out.println(ip);
             if (rateLimiters.computeIfAbsent(ip, k -> RateLimiter.create(30.0 / 60.0)).tryAcquire()) {
                 ctx.fireChannelRead(msg);
             } else {
