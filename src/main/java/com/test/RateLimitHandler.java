@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
 
 import static com.test.Main.rateLimiters;
 
-public class ApiRateLimitHandler extends ChannelDuplexHandler {
+public class RateLimitHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {

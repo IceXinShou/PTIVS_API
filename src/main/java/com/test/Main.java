@@ -11,37 +11,44 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.select.Elements;
 
+import javax.net.ssl.SSLException;
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.test.HTML_Analyze.*;
+import static com.test.PageKey.*;
 
 public class Main {
+    private static final String ALLOWED_HOST = "api.xserver.tw";
     public static final ConcurrentHashMap<String, RateLimiter> rateLimiters = new ConcurrentHashMap<>();
-    private static final Map<String, JSONObject> profileData = new HashMap<>();
-    private static String defaultID = null;
-    private static String defaultPWD = null;
+    public static final Map<String, JSONObject> profileDatas = new HashMap<>();
+    public static String defaultID = null;
+    public static String defaultPWD = null;
     private final int port;
+    public final SslContext sslCtx;
 
-    public Main(int port, String defaultID, String defaultPWD) {
-        this.port = port;
-        Main.defaultID = defaultID;
-        Main.defaultPWD = defaultPWD;
+    public Main(String[] args) throws SSLException {
+        this.port = Integer.parseInt(args[0]);
+        Main.defaultID = args[1];
+        Main.defaultPWD = args[2];
+
+        this.sslCtx = SslContextBuilder.forServer(new File(args[3]), new File(args[4])).build();
     }
 
     public static void main(String[] args) throws Exception {
-        new Main(443, args[0], args[1]).run(new File(args[2]), new File(args[3]));
+        new Main(args).run();
     }
 
 
-    public void run(File certchainFile, File privatekeyFile) throws Exception {
-        SslContext sslCtx = SslContextBuilder.forServer(certchainFile, privatekeyFile).build();
+    public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -59,15 +66,17 @@ public class Main {
 
                             // Add HTTP codec
                             p.addLast(new HttpServerCodec());
+                            p.addLast(new DomainLimit());
 
                             // RateLimit
-                            p.addLast(new ApiRateLimitHandler());
+                            p.addLast(new RateLimitHandler());
+
 
                             // Add object aggregator
                             p.addLast(new HttpObjectAggregator(65536));
 
                             // Add business logic handler
-                            p.addLast(new HttpServerHandler());
+                            p.addLast(new HttpClientHandler());
                         }
                     });
             ChannelFuture f = b.bind(port).sync();
@@ -81,11 +90,10 @@ public class Main {
         }
     }
 
-    private static class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
-
+    private static class HttpClientHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            System.out.println("Client connected from " + ctx.channel().remoteAddress() + " at " + LocalDateTime.now());
+            System.out.print(getTime() + " Connected: " + ctx.channel().remoteAddress() + " -> ");
             super.channelActive(ctx);
         }
 
@@ -93,10 +101,10 @@ public class Main {
         public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
             String uri = request.uri();
             HttpMethod method = request.method();
-            System.out.println(method + ": " + uri);
-
-            LoginManager login = new LoginManager();
-            API_Response api = new API_Response(ctx);
+            HttpHeaders headers = request.headers();
+            String realIP = headers.get("CF-Connecting-IP");
+            System.out.println(headers.get("Host"));
+            System.out.println(getTime() + ' ' + method + ": " + uri + " (" + realIP + ")\n");
 
             String[] args = uri.split("/");
             if (args.length < 3 || uri.equals("/favicon.ico") || !args[1].equals("ptivs") || method != HttpMethod.GET) {
@@ -104,125 +112,109 @@ public class Main {
                 return;
             }
 
-            QueryStringDecoder queryStringDecoder = new QueryStringDecoder(request.uri());
-            String id = "", pwd = "";
+            String cookieString = headers.get(HttpHeaderNames.COOKIE);
+            Map<String, List<String>> parameters = new QueryStringDecoder(uri).parameters();
+            ResponseManager response = new ResponseManager(ctx);
+            AuthManager authManager;
+            LoginManager login;
             try {
-                id = queryStringDecoder.parameters().get("id").get(0);
-                pwd = queryStringDecoder.parameters().get("pwd").get(0);
-            } catch (Exception e) {
-                api.errors.add("cannot get parameters: 'id' or 'pwd'");
+                authManager = new AuthManager(new CookiesManager(cookieString), parameters, realIP);
+                login = authManager.loginManager;
+            } catch (ErrorException e) {
+                response.errors.add(e.getMessage());
+                response.responseJSON.put("time", LocalDateTime.now().toString());
+                ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
             }
 
-            if (!api.haveError()) {
-                if (id.equalsIgnoreCase("testid") && pwd.equals("testpwd")) {
-                    login.onLogin(api, defaultID, defaultPWD);
-                } else {
-                    login.onLogin(api, id, pwd);
+            if (authManager.cookie != null) {
+                response.cookies.add(authManager.cookie);
+            }
+
+            switch (args[2]) {
+                case "absent": {
+                    // 學期缺曠課 010010
+                    putData(readAbsent(login.fetchPageData(ABSENT)), response);
+                    break;
+                }
+
+                case "history_absent": {
+                    // 歷年缺曠課 010030
+                    putData(readHistoryAbsent(login.fetchPageData(HISTORY_ABSENT)), response);
+                    break;
+                }
+
+                case "rewards": {
+                    // 學期獎懲 010040
+                    putData(readRewards(login.fetchPageData(REWARDS)), response);
+                    break;
+                }
+
+                case "score": {
+                    // 學期成績 010090
+                    putData(readScore(login.fetchPageData(SCORE)), response);
+                    break;
+                }
+
+                case "history_rewards": {
+                    // 歷年獎懲 010050
+                    putData(readHistoryRewards(login.fetchPageData(HISTORY_REWARDS)), response);
+                    break;
+                }
+
+                case "punished_cancel_log": {
+                    // 銷過紀錄 010060
+                    putData(readPunishedCancelLog(login.fetchPageData(PUNISHED_CANCEL_LOG)), response);
+                    break;
+                }
+
+                case "clubs": {
+                    // 參與社團 010070
+                    putData(readClubs(login.fetchPageData(CLUBS)), response);
+                    break;
+                }
+
+                case "cadres": {
+                    // 擔任幹部 010080
+                    putData(readCadres(login.fetchPageData(CADRES)), response);
+                    break;
+                }
+
+                case "history_score": {
+                    // 歷年成績 010110
+                    putData(readHistoryScore(login.fetchPageData(HISTORY_SCORE)), response);
+                    break;
+                }
+
+                case "class_table": {
+                    // 課表 010130
+                    putData(readClassTable(login.fetchPageData(CLASS_TABLE)), response);
+                    break;
+                }
+
+                default: {
+                    notFound(ctx);
+                    return;
                 }
             }
 
-            if (!api.haveError()) {
-                switch (args[2]) {
-                    case "absent": {
-                        // 學期缺曠課 010010
-                        putData(readAbsent(login.fetchPageData("010010")), api);
-                        break;
-                    }
-
-                    case "history_absent": {
-                        // 歷年缺曠課 010030
-                        putData(readHistoryAbsent(login.fetchPageData("010030")), api);
-                        break;
-                    }
-
-                    case "rewards": {
-                        // 學期獎懲 010040
-                        putData(readRewards(login.fetchPageData("010040")), api);
-                        break;
-                    }
-
-                    case "score": {
-                        // 學期成績 010090
-                        putData(readScore(login.fetchPageData("010090")), api);
-                        break;
-                    }
-
-                    case "history_rewards": {
-                        // 歷年獎懲 010050
-                        putData(readHistoryRewards(login.fetchPageData("010050")), api);
-                        break;
-                    }
-
-                    case "punished_cancel_log": {
-                        // 銷過紀錄 010060
-                        putData(readPunishedCancelLog(login.fetchPageData("010060")), api);
-                        break;
-                    }
-
-                    case "clubs": {
-                        // 參與社團 010070
-                        putData(readClubs(login.fetchPageData("010070")), api);
-                        break;
-                    }
-
-                    case "cadres": {
-                        // 擔任幹部 010080
-                        putData(readCadres(login.fetchPageData("010080")), api);
-                        break;
-                    }
-
-                    case "history_score": {
-                        // 歷年成績 010110
-                        putData(readHistoryScore(login.fetchPageData("010110")), api);
-                        break;
-                    }
-
-                    case "class_table": {
-                        // 課表 010130
-                        putData(readClassTable(login.fetchPageData("010130")), api);
-                        break;
-                    }
-
-                    default: {
-                        notFound(ctx);
-                        return;
-                    }
-                }
+            if (response.responseJSON.has("data")) {
+                response.responseJSON.getJSONObject("data").put("profile", authManager.profile);
             }
 
-            if (!api.haveError()) {
-                if (api.responseJSON.has("data")) {
-                    if (!profileData.containsKey(id))
-                        profileData.put(id, getProfile(login));
-
-                    api.responseJSON.getJSONObject("data").put("profile", profileData.get(id));
-                }
-            }
-
-            api.responseJSON.put("time", LocalDateTime.now().toString());
-            ctx.writeAndFlush(api.getResponse()).addListener(ChannelFutureListener.CLOSE);
+            response.responseJSON.put("time", LocalDateTime.now().toString());
+            ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
 
-
-        private void putData(JSONObject data, final API_Response api) {
+        private void putData(JSONObject data, final ResponseManager api) {
             if (data != null) {
                 api.responseJSON.put("data", data);
             } else {
                 api.errors.add("cannot get data");
             }
-        }
-
-        private JSONObject getProfile(final LoginManager login) {
-            Elements userDatas = Jsoup.parse(login.fetchPageData("010070")).getElementsByTag("table").get(0).getElementsByTag("tr");
-            JSONObject output = new JSONObject();
-            Elements userData = userDatas.last().children();
-            String semesterStr = userData.get(0).text().trim();
-            output.put("name", userDatas.first().child(0).text().trim().split(" ： ")[1]);
-            output.put("semester", Integer.parseInt(semesterStr.substring(0, semesterStr.lastIndexOf("學年"))));
-            output.put("semester2", semesterStr.endsWith("第一學期") ? 1 : 2);
-            output.put("class", userData.get(1).text().trim());
-            output.put("id", userData.get(2).text().trim().split("：")[1]);
-            return output;
         }
 
         @Override
@@ -235,5 +227,9 @@ public class Main {
             ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
                     .addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private static String getTime() {
+        return "[" + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "]";
     }
 }

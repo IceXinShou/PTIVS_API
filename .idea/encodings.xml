@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/src/main/java/com/test/ApiRateLimitHandler.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/test/EchoServerHandler.java" charset="UTF-8" />
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/src/main/java/com/test/AuthManager.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/test/HTML_Analyze.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/test/Main.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/test/PtivsTn.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/test/PageKey.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/test/RateLimitHandler.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/test/test.java" charset="UTF-8" />
-    <file url="PROJECT" charset="x-windows-950" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
