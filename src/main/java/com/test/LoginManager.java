@@ -22,9 +22,7 @@ public class LoginManager {
         //get Cookie
         HttpURLConnection conn = (HttpURLConnection) new URL("https://sctnank.ptivs.tn.edu.tw/skyweb/main.asp").openConnection();
         conn.setRequestProperty("User-Agent", USER_AGENT);
-
         conn.setRequestMethod("POST");
-
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         conn.setDoOutput(true);
         conn.setInstanceFollowRedirects(true);

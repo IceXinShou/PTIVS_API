@@ -29,8 +29,7 @@ public class AuthManager {
             String id = parameters.get("id").get(0);
             String pwd = parameters.get("pwd").get(0);
 
-            if (id.equalsIgnoreCase("testid") && pwd.equals("testpwd")) {
-                id = defaultID;
+            if (id.equalsIgnoreCase("013129") && pwd.equals("A123456789")) {
                 pwd = defaultPWD;
             }
 
