@@ -67,6 +67,7 @@ public class HTML_Analyze {
             // put preview data
             JSONArray previewJSON = new JSONArray();
             output.put("preview", previewJSON);
+
             Elements previewRaw = tables.get(2).getElementsByTag("tr");
             for (int i = 1; i < previewRaw.size() - 3; ++i) {
                 JSONObject tmp = new JSONObject();

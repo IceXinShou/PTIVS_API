@@ -22,6 +22,7 @@ public class CookiesManager {
                 cookieMap.put(parts[0], parts[1]);
             }
         }
+
         return cookieMap;
     }
 }

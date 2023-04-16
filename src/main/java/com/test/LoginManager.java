@@ -1,5 +1,7 @@
 package com.test;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 public class LoginManager {
     private final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36";
+    private final String ERROR_RESPONSE = "<script language='javascript'>top.location.href='error.htm'</script>";
 
 
     public void login(final String id, final String password) throws ErrorException, IOException {
@@ -58,6 +61,10 @@ public class LoginManager {
             String returnString = streamToString(conn.getInputStream());
             conn.disconnect();
 
+            if (returnString.equals(ERROR_RESPONSE)) {
+                // error occur
+            }
+
             return returnString;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -76,6 +83,7 @@ public class LoginManager {
         }
     }
 
+    @Nullable
     private String streamToString(final InputStream in) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();

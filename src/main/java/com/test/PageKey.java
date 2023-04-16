@@ -14,11 +14,11 @@ public enum PageKey {
 
     private final String id;
 
-    private PageKey(String id) {
+    PageKey(String id) {
         this.id = id;
     }
 
     public String id() {
         return id;
     }
-    }
+}

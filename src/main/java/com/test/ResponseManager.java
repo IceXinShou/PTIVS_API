@@ -14,11 +14,11 @@ import java.util.List;
 
 public class ResponseManager {
     private final ChannelHandlerContext ctx;
-    public List<String> errors = new ArrayList<>();
-    public List<String> warnings = new ArrayList<>();
-    public JSONObject responseJSON = new JSONObject("{\"success\":true}");
-    public List<Cookie> cookies = new ArrayList<>();
-    public HttpResponseStatus type = HttpResponseStatus.OK;
+    public final List<String> errors = new ArrayList<>();
+    public final List<String> warnings = new ArrayList<>();
+    public final JSONObject responseJSON = new JSONObject("{\"success\":true}");
+    public final List<Cookie> cookies = new ArrayList<>();
+    public HttpResponseStatus responseStatus = HttpResponseStatus.OK;
 
     public ResponseManager(ChannelHandlerContext ctx) {
         this.ctx = ctx;
@@ -37,7 +37,7 @@ public class ResponseManager {
 
         ByteBuf buffer = ctx.alloc().buffer();
         buffer.writeBytes(responseJSON.toString().getBytes(CharsetUtil.UTF_8));
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, type, buffer);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, responseStatus, buffer);
         response.headers()
                 .set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8")
                 .set(HttpHeaderNames.CONTENT_LENGTH, buffer.readableBytes())

@@ -18,27 +18,26 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AuthManager {
     private static final Map<String, AccountManager> cookiesAuth = new HashMap<>();
-    public final LoginManager loginManager;
     public final JSONObject profile;
     public Cookie cookie = null;
 
-    public AuthManager(CookiesManager cookiesManager, Map<String, List<String>> parameters, String ip) throws ErrorException, IOException {
-        this.loginManager = new LoginManager();
+    public AuthManager(CookiesManager cookiesManager, LoginManager loginManager, Map<String, List<String>> parameters, String ip) throws ErrorException, IOException {
         Map<String, String> cookies = cookiesManager.cookies;
         AccountManager accountManager;
 
         if (parameters.containsKey("id") && parameters.containsKey("pwd")) {
             String id = parameters.get("id").get(0);
             String pwd = parameters.get("pwd").get(0);
+
             if (id.equalsIgnoreCase("testid") && pwd.equals("testpwd")) {
-                loginManager.login(defaultID, defaultPWD);
-            } else {
-                loginManager.login(id, pwd);
+                id = defaultID;
+                pwd = defaultPWD;
             }
 
             String clientToken = createClientToken(id, pwd);
             accountManager = new AccountManager(id, pwd, ip, createServerToken(clientToken, ip));
             cookiesAuth.put(clientToken, accountManager);
+            loginManager.login(id, pwd);
 
             cookie = new DefaultCookie("token", clientToken);
             cookie.setDomain(".api.xserver.tw");
@@ -54,6 +53,7 @@ public class AuthManager {
             }
 
             accountManager = cookiesAuth.get(clientToken);
+            loginManager.login(accountManager.id, accountManager.pwd);
         } else {
             throw new ErrorException("please login first");
         }
