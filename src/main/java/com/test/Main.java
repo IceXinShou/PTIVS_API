@@ -8,6 +8,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -16,11 +17,10 @@ import org.json.JSONObject;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
-    public static final Map<String, JSONObject> profileDatas = new HashMap<>();
+    public static final ConcurrentHashMap<String, JSONObject> profileDatas = new ConcurrentHashMap<>();
     public static String defaultID = null;
     public static String defaultPWD = null;
     private final int port;
@@ -49,6 +49,7 @@ public class Main {
                     .childHandler(new ChannelInitializer<SocketChannel>() { // 指定每個客戶端連接的處理器
                         @Override
                         protected void initChannel(@NotNull SocketChannel ch) { // 添加自定義的伺服器處理器
+
                             ch.pipeline()
                                     .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
                                     .addLast(new HttpServerCodec()) // 設定編解碼器
@@ -67,5 +68,9 @@ public class Main {
             bossGroup.shutdownGracefully(); // 關閉線程池
             workerGroup.shutdownGracefully(); // 關閉線程池
         }
+    }
+
+    boolean checkHTTPS(HttpRequest request){
+        return request.headers().get("X_FORWARDED_PROTO").equals("https");
     }
 }

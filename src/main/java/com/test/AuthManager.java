@@ -8,16 +8,16 @@ import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.test.Main.*;
 import static com.test.PageKey.CLUBS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AuthManager {
-    private static final Map<String, AccountManager> cookiesAuth = new HashMap<>();
+    private static final ConcurrentHashMap<String, AccountManager> cookiesAuth = new ConcurrentHashMap<>();
     public final JSONObject profile;
     public Cookie cookie = null;
 
@@ -42,7 +42,7 @@ public class AuthManager {
             cookie.setDomain(".api.xserver.tw");
             cookie.setPath("/ptivs/");
             cookie.setMaxAge(94672800L);
-            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
 
         } else if (cookies != null) {
             String clientToken = cookies.get("token");
@@ -81,7 +81,7 @@ public class AuthManager {
     }
 
     private JSONObject getProfile(final LoginManager login) {
-        Elements userDatas = Jsoup.parse(login.fetchPageData(CLUBS)).getElementsByTag("table").get(0).getElementsByTag("tr");
+        Elements userDatas = login.fetchPageData(CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
         JSONObject output = new JSONObject();
         Elements userData = userDatas.last().children();
         String semesterStr = userData.get(0).text().trim();

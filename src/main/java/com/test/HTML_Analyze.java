@@ -3,17 +3,16 @@ package com.test;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 public class HTML_Analyze {
+    private static final String[] dayTitles = new String[]{"星期一", "星期二", "星期三", "星期四", "星期五"};
 
-    public static @Nullable JSONObject readAbsent(final String responseContent) {
+    public static @Nullable JSONObject readAbsent(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
             System.out.println(tables);
 
@@ -25,11 +24,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readRewards(final String responseContent) {
+    public static @Nullable JSONObject readRewards(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
             System.out.println(tables);
 
@@ -41,11 +39,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readHistoryAbsent(final String responseContent) {
+    public static @Nullable JSONObject readHistoryAbsent(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
             System.out.println(tables);
 
@@ -57,11 +54,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readHistoryRewards(final String responseContent) {
+    public static @Nullable JSONObject readHistoryRewards(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             // put preview data
@@ -141,11 +137,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readPunishedCancelLog(final String responseContent) {
+    public static @Nullable JSONObject readPunishedCancelLog(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             JSONArray detailARY = new JSONArray();
@@ -180,15 +175,15 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readClubs(final String responseContent) {
+    public static @Nullable JSONObject readClubs(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             JSONArray detailJSON = new JSONArray();
             output.put("detail", detailJSON);
+
             Elements detailRaw = tables.get(2).getElementsByTag("tr");
             for (int i = 1; i < detailRaw.size(); i++) {
                 JSONObject tmp = new JSONObject();
@@ -210,11 +205,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readCadres(final String responseContent) {
+    public static @Nullable JSONObject readCadres(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             JSONArray detailJSON = new JSONArray();
@@ -238,12 +232,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readClassTable(final String responseContent) {
+    public static @Nullable JSONObject readClassTable(final Document doc) {
         JSONObject output = new JSONObject();
-        String[] dayTitles = new String[]{"星期一", "星期二", "星期三", "星期四", "星期五"};
 
         try {
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             JSONObject detailJSON = new JSONObject();
@@ -283,12 +275,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readHistoryScore(final String responseContent) {
+    public static @Nullable JSONObject readHistoryScore(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             JSONArray detailJSON = new JSONArray();
@@ -363,12 +353,10 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readScore(final String responseContent) {
+    public static @Nullable JSONObject readScore(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
-
-            Document doc = Jsoup.parse(responseContent);
             Elements tables = doc.getElementsByTag("table");
 
             JSONArray detailJSON = new JSONArray();

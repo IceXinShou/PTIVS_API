@@ -1,16 +1,20 @@
 package com.test;
 
 import org.jetbrains.annotations.Nullable;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LoginManager {
-    private final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36";
-    private final String ERROR_RESPONSE = "<script language='javascript'>top.location.href='error.htm'</script>";
+    private static final ConcurrentHashMap<String, String> cookieKeeper = new ConcurrentHashMap<>(); // id, cookie
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36";
+    private static final String ERROR_RESPONSE = "<script language='javascript'>top.location.href='error.htm'</script>";
 
 
     public void login(final String id, final String password) throws ErrorException, IOException {
@@ -45,7 +49,7 @@ public class LoginManager {
         getUrl("https://sctnank.ptivs.tn.edu.tw/skyweb/f_left.asp");
     }
 
-    public String fetchPageData(final PageKey pageKey) {
+    public Document fetchPageData(final PageKey pageKey) {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL("https://sctnank.ptivs.tn.edu.tw/skyweb/fnc.asp").openConnection();
 
@@ -63,7 +67,7 @@ public class LoginManager {
                 // error occur
             }
 
-            return returnString;
+            return Jsoup.parse(returnString);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
