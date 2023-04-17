@@ -41,71 +41,72 @@ class HttpClientHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         Map<String, List<String>> parameters = new QueryStringDecoder(uri).parameters();
         ResponseManager response = new ResponseManager(ctx);
         AuthManager authManager;
+        AccountManager accountManager;
         LoginManager login = new LoginManager();
         try {
             authManager = new AuthManager(new CookiesManager(cookieString), login, parameters, realIP);
-
+            accountManager = authManager.accountManager;
             if (authManager.cookie != null) {
                 response.cookies.add(authManager.cookie);
             }
             switch (args[2]) {
                 case "absent": {
                     // 學期缺曠課 010010
-                    putData(readAbsent(login.fetchPageData(ABSENT)), response);
+                    putData(readAbsent(login.fetchPageData(accountManager, ABSENT)), response);
                     break;
                 }
 
                 case "history_absent": {
                     // 歷年缺曠課 010030
-                    putData(readHistoryAbsent(login.fetchPageData(HISTORY_ABSENT)), response);
+                    putData(readHistoryAbsent(login.fetchPageData(accountManager, HISTORY_ABSENT)), response);
                     break;
                 }
 
                 case "rewards": {
                     // 學期獎懲 010040
-                    putData(readRewards(login.fetchPageData(REWARDS)), response);
+                    putData(readRewards(login.fetchPageData(accountManager, REWARDS)), response);
                     break;
                 }
 
                 case "score": {
                     // 學期成績 010090
-                    putData(readScore(login.fetchPageData(SCORE)), response);
+                    putData(readScore(login.fetchPageData(accountManager, SCORE)), response);
                     break;
                 }
 
                 case "history_rewards": {
                     // 歷年獎懲 010050
-                    putData(readHistoryRewards(login.fetchPageData(HISTORY_REWARDS)), response);
+                    putData(readHistoryRewards(login.fetchPageData(accountManager, HISTORY_REWARDS)), response);
                     break;
                 }
 
                 case "punished_cancel_log": {
                     // 銷過紀錄 010060
-                    putData(readPunishedCancelLog(login.fetchPageData(PUNISHED_CANCEL_LOG)), response);
+                    putData(readPunishedCancelLog(login.fetchPageData(accountManager, PUNISHED_CANCEL_LOG)), response);
                     break;
                 }
 
                 case "clubs": {
                     // 參與社團 010070
-                    putData(readClubs(login.fetchPageData(CLUBS)), response);
+                    putData(readClubs(login.fetchPageData(accountManager, CLUBS)), response);
                     break;
                 }
 
                 case "cadres": {
                     // 擔任幹部 010080
-                    putData(readCadres(login.fetchPageData(CADRES)), response);
+                    putData(readCadres(login.fetchPageData(accountManager, CADRES)), response);
                     break;
                 }
 
                 case "history_score": {
                     // 歷年成績 010110
-                    putData(readHistoryScore(login.fetchPageData(HISTORY_SCORE)), response);
+                    putData(readHistoryScore(login.fetchPageData(accountManager, HISTORY_SCORE)), response);
                     break;
                 }
 
                 case "class_table": {
                     // 課表 010130
-                    putData(readClassTable(login.fetchPageData(CLASS_TABLE)), response);
+                    putData(readClassTable(login.fetchPageData(accountManager, CLASS_TABLE)), response);
                     break;
                 }
 

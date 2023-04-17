@@ -4,7 +4,6 @@ import com.google.common.hash.Hashing;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -20,10 +19,10 @@ public class AuthManager {
     private static final ConcurrentHashMap<String, AccountManager> cookiesAuth = new ConcurrentHashMap<>();
     public final JSONObject profile;
     public Cookie cookie = null;
+    public AccountManager accountManager;
 
     public AuthManager(CookiesManager cookiesManager, LoginManager loginManager, Map<String, List<String>> parameters, String ip) throws ErrorException, IOException {
         Map<String, String> cookies = cookiesManager.cookies;
-        AccountManager accountManager;
 
         if (parameters.containsKey("id") && parameters.containsKey("pwd")) {
             String id = parameters.get("id").get(0);
@@ -36,7 +35,7 @@ public class AuthManager {
             String clientToken = createClientToken(id, pwd);
             accountManager = new AccountManager(id, pwd, ip, createServerToken(clientToken, ip));
             cookiesAuth.put(clientToken, accountManager);
-            loginManager.login(id, pwd);
+            loginManager.login(accountManager);
 
             cookie = new DefaultCookie("token", clientToken);
             cookie.setDomain(".api.xserver.tw");
@@ -52,7 +51,6 @@ public class AuthManager {
             }
 
             accountManager = cookiesAuth.get(clientToken);
-            loginManager.login(accountManager.id, accountManager.pwd);
         } else {
             throw new ErrorException("please login first");
         }
@@ -80,8 +78,8 @@ public class AuthManager {
         return cookiesAuth.get(token).serverToken.equals(createServerToken(token, ip));
     }
 
-    private JSONObject getProfile(final LoginManager login) {
-        Elements userDatas = login.fetchPageData(CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
+    private JSONObject getProfile(final LoginManager login) throws IOException, ErrorException {
+        Elements userDatas = login.fetchPageData(accountManager, CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
         JSONObject output = new JSONObject();
         Elements userData = userDatas.last().children();
         String semesterStr = userData.get(0).text().trim();
