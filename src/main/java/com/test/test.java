@@ -12,10 +12,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class test {
-    private static final ConcurrentHashMap<String, String> cookieKeeper = new ConcurrentHashMap<>(); // id, cookie
+    private static final ConcurrentHashMap<String, Map<String, String>> cookieKeeper = new ConcurrentHashMap<>(); // id, cookie
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36";
     private static final String ERROR_RESPONSE = "<script language='javascript'>top.location.href='error.htm'</script>";
 
@@ -25,24 +26,30 @@ public class test {
     }
 
     public void login(final String id, final String password) {
+        Map<String, String> firstCookie;
         try {
+            firstCookie = Jsoup.connect("https://sctnank.ptivs.tn.edu.tw/skyweb/main.asp")
+                    .method(Connection.Method.GET)
+                    .userAgent(USER_AGENT)
+                    .execute().cookies();
+
+
+            System.out.println(firstCookie);
+
             Connection.Response response = Jsoup.connect("https://sctnank.ptivs.tn.edu.tw/skyweb/main.asp")
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .method(Connection.Method.POST)
+                    .cookies(firstCookie)
                     .userAgent(USER_AGENT)
                     .data("txtid", id)
                     .data("txtpwd", URLEncoder.encode(password, StandardCharsets.UTF_8))
                     .data("check", "confirm")
                     .execute();
-
-            String cookie = response.cookie("ASPSESSIONIDAWAATABD");
-            if (cookie != null) {
-                cookieKeeper.put(id, cookie);
-            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        cookieKeeper.put(id, firstCookie);
         fetchPageData(id, PageKey.CLUBS);
     }
 
@@ -56,8 +63,7 @@ public class test {
                     .data("std_id", "")
                     .data("local_ip", "")
                     .data("contant", "")
-                    .cookie("ASPSESSIONIDAWAATABD", cookieKeeper.get(id))
-                    .cookie("dataskywebfortestcookies", "HAHA%21")
+                    .cookies(cookieKeeper.get(id))
                     .get();
 
             System.out.println(doc);

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RateLimitHandler extends ChannelDuplexHandler {
-    private final ConcurrentHashMap<String, RateLimiter> rateLimiters = new ConcurrentHashMap<>(); // 速率限制紀錄 (ip, 計數器)
+    private static final ConcurrentHashMap<String, RateLimiter> rateLimiters = new ConcurrentHashMap<>(); // 速率限制紀錄 (ip, 計數器)
 
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) {
