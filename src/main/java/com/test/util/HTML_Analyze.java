@@ -1,4 +1,4 @@
-package com.test;
+package com.test.util;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;

@@ -1,4 +1,4 @@
-package com.test;
+package com.test.handler;
 
 import com.google.common.util.concurrent.RateLimiter;
 import io.netty.channel.ChannelDuplexHandler;

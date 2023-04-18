@@ -1,4 +1,4 @@
-package com.test;
+package com.test.util;
 
 public enum PageKey {
     ABSENT("010010"),

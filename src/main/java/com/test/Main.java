@@ -1,5 +1,7 @@
 package com.test;
 
+import com.test.handler.ClientHandler;
+import com.test.handler.DomainLimitHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -8,7 +10,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -16,13 +17,14 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import javax.net.ssl.SSLException;
-import java.io.File;
+import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
+    public static byte[] favicon;
     public static final ConcurrentHashMap<String, JSONObject> profileDatas = new ConcurrentHashMap<>();
-    public static String defaultID = null;
-    public static String defaultPWD = null;
+    public static String defaultID;
+    public static String defaultPWD;
     private final int port;
     public final SslContext sslCtx;
 
@@ -31,6 +33,7 @@ public class Main {
         defaultID = args[1];
         defaultPWD = args[2];
         this.sslCtx = SslContextBuilder.forServer(new File(args[3]), new File(args[4])).build();
+        favicon = loadFavicon(args[5]);
     }
 
     public static void main(String[] args) throws Exception {
@@ -51,17 +54,17 @@ public class Main {
                         protected void initChannel(@NotNull SocketChannel ch) { // 添加自定義的伺服器處理器
 
                             ch.pipeline()
-//                                    .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
+                                    .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
                                     .addLast(new HttpServerCodec()) // 設定編解碼器
-//                                    .addLast(new DomainLimit()) // 設定連線路徑限制
+                                    .addLast(new DomainLimitHandler()) // 設定連線路徑限制
 //                                    .addLast(new RateLimitHandler()) // 設定流量限制
                                     .addLast(new HttpObjectAggregator(65536)) // 整合輸出入資料
-                                    .addLast(new HttpClientHandler()); // 處理資料
+                                    .addLast(new ClientHandler()); // 處理資料
                         }
                     });
             ChannelFuture f = b.bind(port).sync(); // 綁定至端口
 
-            System.out.println("Server started: \nlocalhost:" + port + '\n');
+            System.out.println("Server started\n");
 
             f.channel().closeFuture().sync(); // 等待程式結束並關閉端口
         } finally {
@@ -70,7 +73,18 @@ public class Main {
         }
     }
 
-    boolean checkHTTPS(HttpRequest request){
-        return request.headers().get("X_FORWARDED_PROTO").equals("https");
+    private byte[] loadFavicon(String path) {
+        try (InputStream in = new FileInputStream(path)) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int n;
+            while ((n = in.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
+            }
+            return out.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
     }
 }

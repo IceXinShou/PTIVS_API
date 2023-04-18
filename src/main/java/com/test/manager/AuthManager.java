@@ -1,18 +1,20 @@
-package com.test;
+package com.test.manager;
 
 import com.google.common.hash.Hashing;
+import com.test.util.ErrorException;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.test.Main.*;
-import static com.test.PageKey.CLUBS;
+import static com.test.Main.defaultPWD;
+import static com.test.Main.profileDatas;
+import static com.test.util.PageKey.CLUBS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AuthManager {
@@ -20,42 +22,40 @@ public class AuthManager {
     public final JSONObject profile;
     public Cookie cookie = null;
     public AccountManager accountManager;
+    public LoginManager loginManager;
 
-    public AuthManager(CookiesManager cookiesManager, LoginManager loginManager, Map<String, List<String>> parameters, String ip) throws ErrorException, IOException {
-        Map<String, String> cookies = cookiesManager.cookies;
-
-        if (parameters.containsKey("id") && parameters.containsKey("pwd")) {
-            String id = parameters.get("id").get(0);
-            String pwd = parameters.get("pwd").get(0);
-
-            if (id.equalsIgnoreCase("013129") && pwd.equals("A123456789")) {
-                pwd = defaultPWD;
-            }
-
-            String clientToken = createClientToken(id, pwd);
-            accountManager = new AccountManager(id, pwd, ip, createServerToken(clientToken, ip));
-            cookiesAuth.put(clientToken, accountManager);
-            loginManager.login(accountManager);
-
-            cookie = new DefaultCookie("token", clientToken);
-            cookie.setDomain(".api.xserver.tw");
-            cookie.setPath("/ptivs/");
-            cookie.setMaxAge(94672800L);
-            cookie.setSecure(true);
-
-        } else if (cookies != null) {
-            String clientToken = cookies.get("token");
-
-            if (!verify(clientToken, ip)) {
-                throw new ErrorException("please login again!");
-            }
-
-            accountManager = cookiesAuth.get(clientToken);
-        } else {
-            throw new ErrorException("please login first");
+    public AuthManager(@Nullable String token, String ip) throws ErrorException, IOException {
+        if (token == null) {
+            throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login first", HttpResponseStatus.UNAUTHORIZED);
         }
 
-        if (!profileDatas.containsKey(defaultID)) {
+        if (!verify(token, ip)) {
+            throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login again", HttpResponseStatus.UNAUTHORIZED);
+        }
+
+        loginManager = new LoginManager(accountManager.id, accountManager.pwd);
+        this.profile = profileDatas.get(accountManager.id);
+    }
+
+    public AuthManager(String id, String pwd, String ip) throws ErrorException, IOException {
+
+        if (id.equalsIgnoreCase("013129") && pwd.equals("A123456789")) {
+            pwd = defaultPWD;
+        }
+
+        String clientToken = createClientToken(id, pwd);
+        accountManager = new AccountManager(id, pwd, ip, createServerToken(clientToken, ip));
+        loginManager = new LoginManager(id, pwd);
+        cookiesAuth.put(clientToken, accountManager);
+        loginManager.login();
+
+        cookie = new DefaultCookie("token", clientToken);
+        cookie.setDomain(".api.xserver.tw");
+        cookie.setPath("/ptivs/");
+        cookie.setMaxAge(94672800L);
+        cookie.setSecure(true);
+
+        if (!profileDatas.containsKey(id)) {
             profile = getProfile(loginManager);
             profileDatas.put(accountManager.id, profile);
         } else {
@@ -75,11 +75,16 @@ public class AuthManager {
 
     public boolean verify(String token, String ip) {
         if (!cookiesAuth.containsKey(token)) return false;
-        return cookiesAuth.get(token).serverToken.equals(createServerToken(token, ip));
+
+        AccountManager tmp = cookiesAuth.get(token);
+        if (!tmp.serverToken.equals(createServerToken(token, ip))) return false;
+
+        accountManager = tmp;
+        return true;
     }
 
     private JSONObject getProfile(final LoginManager login) throws IOException, ErrorException {
-        Elements userDatas = login.fetchPageData(accountManager, CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
+        Elements userDatas = login.fetchPageData(CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
         JSONObject output = new JSONObject();
         Elements userData = userDatas.last().children();
         String semesterStr = userData.get(0).text().trim();

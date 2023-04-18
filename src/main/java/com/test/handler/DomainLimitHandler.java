@@ -1,4 +1,4 @@
-package com.test;
+package com.test.handler;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFutureListener;
@@ -9,7 +9,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.jetbrains.annotations.NotNull;
 
-public class DomainLimit extends ChannelDuplexHandler {
+public class DomainLimitHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) {

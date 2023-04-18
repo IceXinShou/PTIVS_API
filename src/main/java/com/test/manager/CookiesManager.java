@@ -1,4 +1,4 @@
-package com.test;
+package com.test.manager;
 
 import org.jetbrains.annotations.Nullable;
 

@@ -1,4 +1,4 @@
-package com.test;
+package com.test.manager;
 
 public class AccountManager {
     final String id;
