@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JSONResponseManager {
-    private final ChannelHandlerContext ctx;
-    public String error = null;
     public final List<String> warnings = new ArrayList<>();
     public final JSONObject json = new JSONObject("{\"success\":true}");
     public final List<Cookie> cookies = new ArrayList<>();
+    private final ChannelHandlerContext ctx;
+    public String error = null;
     public HttpResponseStatus status = HttpResponseStatus.OK;
 
     public JSONResponseManager(ChannelHandlerContext ctx) {

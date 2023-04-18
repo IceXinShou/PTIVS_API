@@ -1,7 +1,7 @@
 package com.test.handler;
 
-import com.test.util.ErrorException;
 import com.test.manager.JSONResponseManager;
+import com.test.util.ErrorException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;

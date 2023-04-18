@@ -1,9 +1,9 @@
 package com.test.handler;
 
-import com.test.util.ErrorException;
 import com.test.manager.AuthManager;
 import com.test.manager.JSONResponseManager;
 import com.test.manager.LoginManager;
+import com.test.util.ErrorException;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -30,6 +30,18 @@ public class GetHandler {
         this.response = new JSONResponseManager(ctx);
 
         get();
+    }
+
+    public static Map<String, String> parseCookieString(String cookieString) {
+        Map<String, String> cookieMap = new HashMap<>();
+        String[] cookies = cookieString.split("; ");
+        for (String cookie : cookies) {
+            String[] parts = cookie.split("=", 2);
+            if (parts.length == 2) {
+                cookieMap.put(parts[0], parts[1]);
+            }
+        }
+        return cookieMap;
     }
 
     private void get() throws ErrorException, IOException {
@@ -112,18 +124,6 @@ public class GetHandler {
         }
 
         ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    public static Map<String, String> parseCookieString(String cookieString) {
-        Map<String, String> cookieMap = new HashMap<>();
-        String[] cookies = cookieString.split("; ");
-        for (String cookie : cookies) {
-            String[] parts = cookie.split("=", 2);
-            if (parts.length == 2) {
-                cookieMap.put(parts[0], parts[1]);
-            }
-        }
-        return cookieMap;
     }
 
     private void putData(@Nullable JSONObject data) throws ErrorException {

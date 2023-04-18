@@ -1,8 +1,8 @@
 package com.test.handler;
 
-import com.test.util.ErrorException;
 import com.test.manager.AuthManager;
 import com.test.manager.JSONResponseManager;
+import com.test.util.ErrorException;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
