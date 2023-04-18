@@ -1,5 +1,6 @@
 package com.test;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -7,6 +8,7 @@ import io.netty.handler.codec.http.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Calendar;
@@ -17,6 +19,10 @@ import static com.test.HTML_Analyze.*;
 import static com.test.PageKey.*;
 
 class HttpClientHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+    private static String getTime() {
+        return "[" + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "]";
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println(getTime() + " Connected: " + ctx.channel().remoteAddress());
@@ -32,10 +38,24 @@ class HttpClientHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         System.out.println(getTime() + ' ' + method + ": " + uri + " (" + realIP + ")");
 
         String[] args = uri.split("/");
-        if (args.length < 3 || uri.equals("/favicon.ico") || !args[1].equals("ptivs") || method != HttpMethod.GET) {
+
+
+        if (method == HttpMethod.POST) {
+
+            System.out.println(request.content().toString(StandardCharsets.UTF_8));
+            System.out.println("HI");
+
+        } else if (method == HttpMethod.GET) {
+            System.out.println("WWW");
+        } else {
+
+        }
+
+        if (args.length < 3 || uri.equals("/favicon.ico") || !args[1].equals("ptivs")) {
             notFound(ctx);
             return;
         }
+
 
         String cookieString = headers.get(HttpHeaderNames.COOKIE);
         Map<String, List<String>> parameters = new QueryStringDecoder(uri).parameters();
@@ -151,10 +171,6 @@ class HttpClientHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private void notFound(final ChannelHandlerContext ctx) {
         ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
                 .addListener(ChannelFutureListener.CLOSE);
-    }
-
-    private static String getTime() {
-        return "[" + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "]";
     }
 }
 

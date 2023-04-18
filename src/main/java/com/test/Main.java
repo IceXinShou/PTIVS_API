@@ -51,10 +51,10 @@ public class Main {
                         protected void initChannel(@NotNull SocketChannel ch) { // 添加自定義的伺服器處理器
 
                             ch.pipeline()
-                                    .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
+//                                    .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
                                     .addLast(new HttpServerCodec()) // 設定編解碼器
-                                    .addLast(new DomainLimit()) // 設定連線路徑限制
-                                    .addLast(new RateLimitHandler()) // 設定流量限制
+//                                    .addLast(new DomainLimit()) // 設定連線路徑限制
+//                                    .addLast(new RateLimitHandler()) // 設定流量限制
                                     .addLast(new HttpObjectAggregator(65536)) // 整合輸出入資料
                                     .addLast(new HttpClientHandler()); // 處理資料
                         }
