@@ -7,13 +7,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.test.Main.favicon;
 
@@ -77,14 +74,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void putData(JSONObject data, final JSONResponseManager api) throws ErrorException {
-        if (data != null) {
-            api.json.put("data", data);
-        } else {
-            throw new ErrorException("cannot get data");
-        }
-    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
@@ -96,17 +85,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         response.status = status;
         response.error = message;
         ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    private Map<String, String> readContent(final String content) {
-        Map<String, String> response = new HashMap<>();
-        for (String i : content.split("&")) {
-            String[] data = i.split("=");
-            if (data.length == 2) {
-                response.put(data[0], data[1]);
-            }
-        }
-        return response;
     }
 }
 
