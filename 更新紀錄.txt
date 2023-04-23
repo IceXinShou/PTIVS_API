@@ -1,0 +1,17 @@
+v1.0
+* 很多，忘記了
+
+v2.0
+
+* HTTP 重定向 HTTPS
+* 網域續約 xserver.tw
+* 透過 Cloudflare 進行流量與 Proxy 保護
+* 註冊 SSL/TLS 憑證
+* 請求次數限制 (Rate Limit)
+* 取得真實 IP
+* 程式區塊化
+* 僅允許指定路徑訪問 (Domain Limit) e.g. api.xserver.tw
+* 改用 GET 與 POST 方法
+* 登入優化 (Cookie)
+* 使用者緩存
+* 支援 favicon.ico
