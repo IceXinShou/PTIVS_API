@@ -61,7 +61,7 @@ public class GetHandler {
         AuthManager authManager = new AuthManager(cookies.get("token"), realIP);
         String[] args = request.uri().split("/");
         LoginManager login = authManager.loginManager;
-        switch (args[2]) {
+        switch (args[2].toLowerCase()) {
             case "absent": {
                 // 學期缺曠課 010010
                 putData(readAbsent(login.fetchPageData(ABSENT)));
