@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
@@ -32,7 +33,10 @@ public class GetHandler {
         get();
     }
 
-    public static Map<String, String> parseCookieString(String cookieString) {
+    @Nullable
+    public static Map<String, String> parseCookieString(@Nullable String cookieString) {
+        if (cookieString == null) return null;
+
         Map<String, String> cookieMap = new HashMap<>();
         String[] cookies = cookieString.split("; ");
         for (String cookie : cookies) {
@@ -47,6 +51,10 @@ public class GetHandler {
     private void get() throws ErrorException, IOException {
         HttpHeaders headers = request.headers();
         Map<String, String> cookies = parseCookieString(headers.get(HttpHeaderNames.COOKIE));
+        if (cookies == null) {
+            throw new ErrorException("cannot get cookie", HttpResponseStatus.BAD_REQUEST);
+        }
+
         String realIP = headers.get("CF-Connecting-IP");
 
         /* Check Cookie */

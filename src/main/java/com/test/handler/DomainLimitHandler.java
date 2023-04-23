@@ -16,7 +16,7 @@ public class DomainLimitHandler extends ChannelDuplexHandler {
         if (msg instanceof HttpRequest) { // 如果型別為 HttpRequest
             HttpRequest request = (HttpRequest) msg;
             if (!request.headers().get("Host").equals("api.xserver.tw")) { // 當連線路徑不屬於 api.xserver.tw
-                System.out.println("OUT");
+                System.out.println("<Domain Filtered>");
                 ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST))
                         .addListener(ChannelFutureListener.CLOSE);
                 return;

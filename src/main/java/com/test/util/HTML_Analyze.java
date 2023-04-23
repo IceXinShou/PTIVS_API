@@ -9,7 +9,8 @@ import org.jsoup.select.Elements;
 public class HTML_Analyze {
     private static final String[] dayTitles = new String[]{"星期一", "星期二", "星期三", "星期四", "星期五"};
 
-    public static @Nullable JSONObject readAbsent(final Document doc) {
+    @Nullable
+    public static JSONObject readAbsent(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -24,7 +25,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readRewards(final Document doc) {
+    @Nullable
+    public static JSONObject readRewards(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -39,7 +41,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readHistoryAbsent(final Document doc) {
+    @Nullable
+    public static JSONObject readHistoryAbsent(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -54,7 +57,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readHistoryRewards(final Document doc) {
+    @Nullable
+    public static JSONObject readHistoryRewards(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -137,7 +141,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readPunishedCancelLog(final Document doc) {
+    @Nullable
+    public static JSONObject readPunishedCancelLog(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -175,7 +180,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readClubs(final Document doc) {
+    @Nullable
+    public static JSONObject readClubs(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -205,7 +211,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readCadres(final Document doc) {
+    @Nullable
+    public static JSONObject readCadres(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -232,7 +239,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readClassTable(final Document doc) {
+    @Nullable
+    public static JSONObject readClassTable(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -275,7 +283,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readHistoryScore(final Document doc) {
+    @Nullable
+    public static JSONObject readHistoryScore(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
@@ -353,7 +362,8 @@ public class HTML_Analyze {
         return output;
     }
 
-    public static @Nullable JSONObject readScore(final Document doc) {
+    @Nullable
+    public static JSONObject readScore(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
