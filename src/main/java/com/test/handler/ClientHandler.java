@@ -47,7 +47,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            if (!args[1].equals("ptivs")) {
+            if (args.length < 2 || !args[1].equals("ptivs")) {
                 sendError(ctx, "unsupported uri", HttpResponseStatus.NOT_FOUND);
                 return;
             }
