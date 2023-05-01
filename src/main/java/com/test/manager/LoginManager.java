@@ -53,11 +53,11 @@ public class LoginManager {
         cookieKeeper.put(id, response.cookies());
     }
 
-    public Document fetchPageData(final PageKey pageKey) throws IOException, ErrorException {
+    public Document fetchPageData(PageKey pageKey) throws IOException, ErrorException {
         return fetchPageData(pageKey, false);
     }
 
-    public Document fetchPageData(final PageKey pageKey, final boolean reFetch) throws IOException, ErrorException {
+    public Document fetchPageData(PageKey pageKey, boolean reFetch) throws IOException, ErrorException {
         Connection.Response response = Jsoup.connect("https://sctnank.ptivs.tn.edu.tw/skyweb/fnc.asp")
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .method(Connection.Method.POST)
