@@ -29,14 +29,18 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object obj) {
         if (obj instanceof FullHttpRequest) {
             FullHttpRequest request = (FullHttpRequest) obj;
-
             String uri = request.uri();
+
+            String[] args = uri.split("/");
+            if (args.length < 2 || !args[1].equals("ptivs")) {
+                sendError(ctx, "unsupported uri", HttpResponseStatus.NOT_FOUND);
+                return;
+            }
+
             HttpMethod method = request.method();
             HttpHeaders headers = request.headers();
             String realIP = headers.get("CF-Connecting-IP");
             System.out.println(getTime() + ' ' + method + ": " + uri + " (" + realIP + ")");
-
-            String[] args = uri.split("/");
 
             if (uri.equals("/favicon.ico")) {
                 FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(favicon));
@@ -44,11 +48,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 response.headers().set(HttpHeaderNames.CONTENT_LENGTH, favicon.length);
                 response.headers().set(HttpHeaderNames.CACHE_CONTROL, "max-age=31557600");
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                return;
-            }
-
-            if (args.length < 2 || !args[1].equals("ptivs")) {
-                sendError(ctx, "unsupported uri", HttpResponseStatus.NOT_FOUND);
                 return;
             }
 

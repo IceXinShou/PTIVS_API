@@ -49,6 +49,10 @@ public class GetHandler {
     }
 
     private void get() throws ErrorException, IOException {
+        String[] args = request.uri().split("/");
+        if (!args[2].equalsIgnoreCase("get"))
+            return;
+
         HttpHeaders headers = request.headers();
         Map<String, String> cookies = parseCookieString(headers.get(HttpHeaderNames.COOKIE));
         if (cookies == null) {
@@ -59,9 +63,8 @@ public class GetHandler {
 
         /* Check Cookie */
         AuthManager authManager = new AuthManager(cookies.get("token"), realIP);
-        String[] args = request.uri().split("/");
         LoginManager login = authManager.loginManager;
-        switch (args[2].toLowerCase()) {
+        switch (args[3].toLowerCase()) {
             case "absent": {
                 // 學期缺曠課 010010
                 putData(readAbsent(login.fetchPageData(ABSENT)));
