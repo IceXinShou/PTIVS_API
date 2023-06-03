@@ -56,7 +56,7 @@ public class GetHandler {
         HttpHeaders headers = request.headers();
         Map<String, String> cookies = parseCookieString(headers.get(HttpHeaderNames.COOKIE));
         if (cookies == null) {
-            throw new ErrorException("cannot get cookie, please POST 'id' and 'pwd' to '/ptivs/login/' for login first", HttpResponseStatus.BAD_REQUEST);
+            throw new ErrorException("cannot get cookie, please POST 'id' and 'pwd' to '/ptivs/login/' for login first", HttpResponseStatus.UNAUTHORIZED);
         }
 
         String realIP = headers.get("CF-Connecting-IP");

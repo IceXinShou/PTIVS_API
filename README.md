@@ -170,10 +170,10 @@ the PTIVS API.
 Example:
 
 ```bash
-curl -X POST -d "id=013129&pwd=A123456789" https://api.xserver.tw/ptivs/login/ --insecure
-curl -X GET --cookie "token=替換為cookie值" https://api.xserver.tw/ptivs/get/clubs/ --insecure
+curl -X POST -d "id=013129&pwd=A123456789" https://api.xserver.tw/ptivs/login/
+curl -X GET --cookie "token=替換為cookie值" https://api.xserver.tw/ptivs/get/clubs/
 ```
-
+> If not usable, add `--insecure` at the end of commands
 
 ---
 
