@@ -17,7 +17,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.test.util.HTML_Analyze.*;
+import static com.test.HTML_Analyze.ReadAbsent.readAbsent;
+import static com.test.HTML_Analyze.ReadClubs.readClubs;
+import static com.test.HTML_Analyze.ReadHistoryAbsent.readHistoryAbsent;
+import static com.test.HTML_Analyze.ReadHistoryRewards.readHistoryRewards;
+import static com.test.HTML_Analyze.ReadPunishedCancelLog.readPunishedCancelLog;
+import static com.test.HTML_Analyze.ReadRewards.readRewards;
 import static com.test.util.PageKey.*;
 
 public class GetHandler {

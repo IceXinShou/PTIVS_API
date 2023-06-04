@@ -155,6 +155,8 @@ the PTIVS API.
 * Optimized login process using cookies
 * User caching
 * Support for favicon.ico
+* README.md beautify
+* Line App init support
 
 > Please note that the PTIVS API has undergone significant updates and improvements in version 2.0.
 
