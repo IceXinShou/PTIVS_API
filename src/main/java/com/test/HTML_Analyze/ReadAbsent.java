@@ -35,18 +35,13 @@ public class ReadAbsent {
                 JSONObject data = new JSONObject();
                 detail.put(data);
 
-                data.put("日期", dateConvert(children.get(1).text().trim().split("/")));
+                data.put("日期", dateConvert(children.get(2).text().trim().split("/")));
 
                 for (int j = 3; j < 13; ++j) {
                     if (children.get(j).text().trim().equals("0")) continue;
-
-
+                    data.put(CLASS_LABEL[j - 3], children.get(j).text().trim());
                 }
-
             }
-
-
-            System.out.println(tables);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

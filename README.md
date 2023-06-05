@@ -53,6 +53,7 @@ Endpoint: https://api.xserver.tw/ptivs/get/[type]/
 
 | 請求資料                | 用途    | Endpoint Type       |
 |---------------------|-------|---------------------|
+| rewards             | 學期獎懲  | rewards             |
 | history_rewards     | 歷年獎懲  | history_rewards     |
 | punished_cancel_log | 銷過紀錄  | punished_cancel_log |
 | clubs               | 參與社團  | clubs               |
@@ -61,7 +62,6 @@ Endpoint: https://api.xserver.tw/ptivs/get/[type]/
 | class_table         | 課表    | class_table         |
 | absent              | 學期缺曠課 | Not available yet   |
 | history_absent      | 歷年缺曠課 | Not available yet   |
-| rewards             | 學期獎懲  | Not available yet   |
 | score               | 學期成績  | Not available yet   |
 
 ### Request Headers

@@ -11,8 +11,8 @@ public class Util {
 
     public static JSONObject dateConvert(String[] ymd) {
         return new JSONObject()
-                .put("年", ymd[0])
-                .put("月", ymd[1])
-                .put("日", ymd[2]);
+                .put("年", Integer.valueOf(ymd[0]))
+                .put("月", Integer.valueOf(ymd[1]))
+                .put("日", Integer.valueOf(ymd[2]));
     }
 }
