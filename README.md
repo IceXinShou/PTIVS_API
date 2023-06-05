@@ -60,7 +60,7 @@ Endpoint: https://api.xserver.tw/ptivs/get/[type]/
 | cadres              | 擔任幹部  | cadres              |
 | history_score       | 歷年成績  | history_score       |
 | class_table         | 課表    | class_table         |
-| absent              | 學期缺曠課 | Not available yet   |
+| absent              | 學期缺曠課 | absent              |
 | history_absent      | 歷年缺曠課 | Not available yet   |
 | score               | 學期成績  | Not available yet   |
 
