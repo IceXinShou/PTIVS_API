@@ -21,7 +21,7 @@ public class AuthManager {
     private static final ConcurrentHashMap<String, AccountManager> cookiesAuth = new ConcurrentHashMap<>();
     public final JSONObject profile;
     public Cookie cookie = null;
-    public AccountManager accountManager;
+    private AccountManager accountManager;
     public LoginManager loginManager;
 
     public AuthManager(@Nullable String token, String ip) throws ErrorException, IOException {
@@ -63,17 +63,17 @@ public class AuthManager {
         }
     }
 
-    public String createClientToken(String id, String pwd) {
+    private String createClientToken(String id, String pwd) {
         return Hashing.sha512()
                 .hashString(id + '`' + pwd, UTF_8).toString();
     }
 
-    public String createServerToken(String clientToken, String ip) {
+    private String createServerToken(String clientToken, String ip) {
         return Hashing.sha512()
                 .hashString(clientToken + '`' + ip, UTF_8).toString();
     }
 
-    public boolean verify(String token, String ip) {
+    private boolean verify(String token, String ip) {
         if (!cookiesAuth.containsKey(token)) return false;
 
         AccountManager tmp = cookiesAuth.get(token);
