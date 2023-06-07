@@ -20,6 +20,6 @@ public class ReadHistoryAbsent {
             return null;
         }
 
-        return output;
+        return new JSONObject().put("歷年缺曠", output);
     }
 }

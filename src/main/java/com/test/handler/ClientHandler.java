@@ -27,8 +27,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object obj) {
-        if (obj instanceof FullHttpRequest) {
-            FullHttpRequest request = (FullHttpRequest) obj;
+        if (obj instanceof FullHttpRequest request) {
             String uri = request.uri();
 
             String[] args = uri.split("/");

@@ -9,16 +9,14 @@ import org.jsoup.select.Elements;
 import static com.test.HTML_Analyze.Util.dateConvert;
 
 public class ReadPunishedCancelLog {
+    private static final String[] LABEL = {"銷功過日期", "功過狀態", "發生日期", "事由", "獎懲類別", "大功過", "小功過", "嘉獎警告", "優缺點"};
 
     @Nullable
     public static JSONObject readPunishedCancelLog(final Document doc) {
-        JSONObject output = new JSONObject();
+        JSONArray output = new JSONArray();
 
         try {
             Elements tables = doc.getElementsByTag("table");
-
-            JSONArray detailARY = new JSONArray();
-            output.put("detail", detailARY);
 
             Elements detailRaw = tables.get(1).getElementsByTag("tr");
             for (int i = 2; i < detailRaw.size(); i++) {
@@ -27,17 +25,21 @@ public class ReadPunishedCancelLog {
                 if (td.size() == 1) continue;
 
                 JSONObject cur = new JSONObject();
-                detailARY.put(cur);
+                output.put(cur);
 
-                cur.put("cancel_time", dateConvert(td.get(0).text().trim().split("[年月日]")));
-                cur.put("status", td.get(1).text().trim());
-                cur.put("occur_time", dateConvert(td.get(2).text().trim().split("[年月日]")));
-                cur.put("description", td.get(3).text().trim());
-                cur.put("type", td.get(4).text().trim());
-                cur.put("major", Integer.parseInt(td.get(5).text().trim()));
-                cur.put("minor", Integer.parseInt(td.get(6).text().trim()));
-                cur.put("commendation_admonition", Integer.parseInt(td.get(7).text().trim()));
-                cur.put("point", Integer.parseInt(td.get(8).text().trim()));
+                for (int j = 0; j < 9; j++) {
+                    switch (j) {
+                        case 0, 2 -> {
+                            cur.put(LABEL[j], dateConvert(td.get(0).text().trim().split("[年月日]")));
+                        }
+                        case 1, 3, 4 -> {
+                            cur.put(LABEL[j], td.get(j).text().trim());
+                        }
+                        default -> {
+                            cur.put(LABEL[j], Integer.parseInt(td.get(j).text().trim()));
+                        }
+                    }
+                }
             }
 
 
@@ -46,6 +48,6 @@ public class ReadPunishedCancelLog {
             return null;
         }
 
-        return output;
+        return new JSONObject().put("銷過紀錄", output);
     }
 }

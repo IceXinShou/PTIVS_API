@@ -13,24 +13,23 @@ public class ReadAbsent {
     private static final String[] PREVIEW_LABEL = {"年度", "學期", "曠課", "午曠", "環曠", "事假", "病假", "公假", "喪假", "防疫假"};
     private static final String[] CLASS_LABEL = {"1", "2", "3", "4", "午休", "5", "6", "7", "環境打掃", "輔導課"};
 
+
     @Nullable
     public static JSONObject readAbsent(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {
             Elements tables = doc.getElementsByTag("table");
-
-
             Elements e_preview = tables.get(2).getElementsByTag("tr").get(1).children();
             JSONObject preview = new JSONObject();
-            output.put("預覽", preview);
+            output.put("統計", preview);
             for (int i = 0; i < 10; i++) {
                 preview.put(PREVIEW_LABEL[i], e_preview.get(i).text().trim());
             }
 
             Elements e_detail = tables.get(4).getElementsByTag("tr");
             JSONArray detail = new JSONArray();
-            output.put("細節", detail);
+            output.put("資料表", detail);
             for (int i = 1; i < e_detail.size(); ++i) {
                 Elements children = e_detail.get(i).children();
                 JSONObject data = new JSONObject();
@@ -48,7 +47,7 @@ public class ReadAbsent {
             return null;
         }
 
-        return output;
+        return new JSONObject().put("學期缺曠", output);
     }
 
 
