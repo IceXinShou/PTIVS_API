@@ -88,11 +88,11 @@ public class AuthManager {
         JSONObject output = new JSONObject();
         Elements userData = userDatas.last().children();
         String semesterStr = userData.get(0).text().trim();
-        output.put("name", userDatas.first().child(0).text().trim().split(" ： ")[1]);
-        output.put("semester", Integer.parseInt(semesterStr.substring(0, semesterStr.lastIndexOf("學年"))));
-        output.put("semester2", semesterStr.endsWith("第一學期") ? 1 : 2);
-        output.put("class", userData.get(1).text().trim());
-        output.put("id", userData.get(2).text().trim().split("：")[1]);
+        output.put("姓名", userDatas.first().child(0).text().trim().split(" ： ")[1]);
+        output.put("學年", Integer.parseInt(semesterStr.substring(0, semesterStr.lastIndexOf("學年"))));
+        output.put("學期", semesterStr.endsWith("第一學期") ? 1 : 2);
+        output.put("班級", userData.get(1).text().trim());
+        output.put("學號", userData.get(2).text().trim().split("：")[1]);
         return output;
     }
 }
