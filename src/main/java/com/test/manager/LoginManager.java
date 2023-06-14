@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LoginManager {
     private static final ConcurrentHashMap<String, Map<String, String>> cookieKeeper = new ConcurrentHashMap<>(); // id, cookies
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36 Edg/112.0.1722.48";
+    private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.37";
 
     private final String id;
     private final String pwd;

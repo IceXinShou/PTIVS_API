@@ -42,10 +42,9 @@ public class AuthManager {
         if (id.equalsIgnoreCase("013129") && pwd.equals("A123456789")) {
             pwd = defaultPWD;
         }
-
+        loginManager = new LoginManager(id, pwd);
         String clientToken = createClientToken(id, pwd);
         accountManager = new AccountManager(id, pwd, ip, createServerToken(clientToken, ip));
-        loginManager = new LoginManager(id, pwd);
         cookiesAuth.put(clientToken, accountManager);
         loginManager.login();
 

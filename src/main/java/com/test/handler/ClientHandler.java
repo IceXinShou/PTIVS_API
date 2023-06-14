@@ -31,7 +31,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             String uri = request.uri();
 
             String[] args = uri.split("/");
-            if (args.length < 2 || !args[1].equals("ptivs")) {
+            if (args.length < 3 || !args[1].equals("ptivs")) {
                 sendError(ctx, "unsupported uri", HttpResponseStatus.NOT_FOUND);
                 return;
             }

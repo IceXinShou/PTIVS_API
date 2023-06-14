@@ -14,8 +14,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -35,11 +33,7 @@ public class Main {
         this.port = Integer.parseInt(args[0]);
         defaultID = args[1];
         defaultPWD = args[2];
-        this.sslCtx = SslContextBuilder
-                .forServer(new File(args[3]), new File(args[4]))
-                .sslProvider(SslProvider.JDK)
-                .trustManager(InsecureTrustManagerFactory.INSTANCE)
-                .build();
+        this.sslCtx = SslContextBuilder.forServer(new File(args[3]), new File(args[4])).build();
         favicon = loadFavicon(args[5]);
     }
 
@@ -47,12 +41,6 @@ public class Main {
         new Main(args).run();
     }
 
-    public class SSLChannelInitializer extends ChannelInitializer<SocketChannel> {
-        @Override
-        protected void initChannel(SocketChannel ch) {
-            ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()));
-        }
-    }
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1); // 創建一個線程池，用於處理連接請求
         EventLoopGroup workerGroup = new NioEventLoopGroup(); // 創建一個線程池，用於處理連接請求
@@ -66,7 +54,7 @@ public class Main {
                         protected void initChannel(@NotNull SocketChannel ch) { // 添加自定義的伺服器處理器
 
                             ch.pipeline()
-                                    .addLast(new SSLChannelInitializer()) // 設定加解密器，確保所有資料安全
+                                    .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
                                     .addLast(new HttpServerCodec()) // 設定編解碼器
                                     .addLast(new DomainLimitHandler()) // 設定連線路徑限制
                                     .addLast(new RateLimitHandler()) // 設定流量限制
