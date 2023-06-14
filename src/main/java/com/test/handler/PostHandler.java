@@ -54,7 +54,9 @@ class PostHandler {
         try {
             AuthManager authManager = new AuthManager(id, pwd, realIP);
 
-            response.json.put("token", authManager.cookie.value());
+            response.json
+                    .put("token", authManager.cookie.value())
+                    .put("data", authManager.profile);
             response.cookies.add(authManager.cookie);
         } catch (ErrorException e) {
             response.status = e.status;
