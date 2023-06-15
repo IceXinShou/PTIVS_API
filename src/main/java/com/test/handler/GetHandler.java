@@ -74,67 +74,47 @@ public class GetHandler {
         AuthManager authManager = new AuthManager(cookies.get("token"), realIP);
         LoginManager login = authManager.loginManager;
         switch (args[3].toLowerCase()) {
-            case "absent": {
+            case "absent" -> {
                 // 學期缺曠課 010010
                 putData(readAbsent(login.fetchPageData(ABSENT)));
-                break;
             }
-
-            case "history_absent": {
+            case "history_absent" -> {
                 // 歷年缺曠課 010030
                 putData(readHistoryAbsent(login.fetchPageData(HISTORY_ABSENT)));
-                break;
             }
-
-            case "rewards": {
+            case "rewards" -> {
                 // 學期獎懲 010040
                 putData(readRewards(login.fetchPageData(REWARDS)));
-                break;
             }
-
-            case "score": {
+            case "score" -> {
                 // 學期成績 010090
                 putData(readScore(login.fetchPageData(SCORE)));
-                break;
             }
-
-            case "history_rewards": {
+            case "history_rewards" -> {
                 // 歷年獎懲 010050
                 putData(readHistoryRewards(login.fetchPageData(HISTORY_REWARDS)));
-                break;
             }
-
-            case "punished_cancel_log": {
+            case "punished_cancel_log" -> {
                 // 銷過紀錄 010060
                 putData(readPunishedCancelLog(login.fetchPageData(PUNISHED_CANCEL_LOG)));
-                break;
             }
-
-            case "clubs": {
+            case "clubs" -> {
                 // 參與社團 010070
                 putData(readClubs(login.fetchPageData(CLUBS)));
-                break;
             }
-
-            case "cadres": {
+            case "cadres" -> {
                 // 擔任幹部 010080
                 putData(readCadres(login.fetchPageData(CADRES)));
-                break;
             }
-
-            case "history_score": {
+            case "history_score" -> {
                 // 歷年成績 010110
                 putData(readHistoryScore(login.fetchPageData(HISTORY_SCORE)));
-                break;
             }
-
-            case "class_table": {
+            case "class_table" -> {
                 // 課表 010130
                 putData(readClassTable(login.fetchPageData(CLASS_TABLE)));
-                break;
             }
-
-            default: {
+            default -> {
                 return;
             }
         }

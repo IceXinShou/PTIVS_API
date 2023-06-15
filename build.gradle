@@ -15,6 +15,7 @@ dependencies {
     implementation group: 'org.json', name: 'json', version: '20230227'
     implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.4'
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.42.0.0'
 }
 
 test {

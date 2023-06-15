@@ -10,15 +10,15 @@ import org.json.JSONObject;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.test.Main.defaultPWD;
-import static com.test.Main.profileDatas;
+import static com.test.Main.*;
 import static com.test.util.PageKey.CLUBS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AuthManager {
-    private static final ConcurrentHashMap<String, AccountManager> cookiesAuth = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, JSONObject> profileDatas = new ConcurrentHashMap<>();
     public final JSONObject profile;
     public Cookie cookie = null;
     private AccountManager accountManager;
@@ -29,7 +29,7 @@ public class AuthManager {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login first", HttpResponseStatus.UNAUTHORIZED);
         }
 
-        if (!verify(token, ip)) {
+        if (!dbm.verify(token, ip)) {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login again", HttpResponseStatus.UNAUTHORIZED);
         }
 
@@ -37,16 +37,16 @@ public class AuthManager {
         this.profile = profileDatas.get(accountManager.id);
     }
 
-    public AuthManager(String id, String pwd, String ip) throws ErrorException, IOException {
+    public AuthManager(String id, String pwd, String ip) throws ErrorException, IOException, SQLException {
 
-        if (id.equalsIgnoreCase("013129") && pwd.equals("A123456789")) {
+        if (id.equals(defaultID) && pwd.equals("A123456789")) {
             pwd = defaultPWD;
         }
+
         loginManager = new LoginManager(id, pwd);
         String clientToken = createClientToken(id, pwd);
-        accountManager = new AccountManager(id, pwd, ip, createServerToken(clientToken, ip));
-        cookiesAuth.put(clientToken, accountManager);
-        loginManager.login();
+        accountManager = new AccountManager(id, ip, pwd, clientToken, createServerToken(clientToken, ip));
+        dbm.add(accountManager);
 
         cookie = new DefaultCookie("token", clientToken);
         cookie.setDomain(".api.xserver.tw");
@@ -70,16 +70,6 @@ public class AuthManager {
     private String createServerToken(String clientToken, String ip) {
         return Hashing.sha512()
                 .hashString(clientToken + '`' + ip, UTF_8).toString();
-    }
-
-    private boolean verify(String token, String ip) {
-        if (!cookiesAuth.containsKey(token)) return false;
-
-        AccountManager tmp = cookiesAuth.get(token);
-        if (!tmp.serverToken.equals(createServerToken(token, ip))) return false;
-
-        accountManager = tmp;
-        return true;
     }
 
     private JSONObject getProfile(final LoginManager login) throws IOException, ErrorException {

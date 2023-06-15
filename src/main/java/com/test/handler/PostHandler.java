@@ -11,6 +11,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,6 +65,8 @@ class PostHandler {
         } catch (IOException e) {
             response.status = HttpResponseStatus.BAD_REQUEST;
             response.error = e.getMessage();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
