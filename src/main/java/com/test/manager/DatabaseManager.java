@@ -26,7 +26,7 @@ public class DatabaseManager {
     }
 
     public void add(Account account) throws SQLException {
-        String insert = "INSERT INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
+        String insert = "INSERT OR REPLACE INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
         PreparedStatement createMessage = conn.prepareStatement(insert);
         createMessage.setString(1, account.clientToken);
         createMessage.setString(2, account.id);
