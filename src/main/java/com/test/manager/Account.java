@@ -1,13 +1,13 @@
 package com.test.manager;
 
-public class AccountManager {
+public class Account {
     final String id;
     final String ip;
     final String pwd;
     final String clientToken;
     final String serverToken;
 
-    public AccountManager(String id, String ip, String pwd, String clientToken, String serverToken) {
+    public Account(String id, String ip, String pwd, String clientToken, String serverToken) {
         this.id = id;
         this.ip = ip;
         this.pwd = pwd;

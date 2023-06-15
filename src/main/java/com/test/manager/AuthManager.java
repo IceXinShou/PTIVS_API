@@ -21,7 +21,7 @@ public class AuthManager {
     private static final ConcurrentHashMap<String, JSONObject> profileDatas = new ConcurrentHashMap<>();
     public final JSONObject profile;
     public Cookie cookie = null;
-    private AccountManager accountManager;
+    private final Account account;
     public LoginManager loginManager;
 
     public AuthManager(@Nullable String token, String ip) throws ErrorException, IOException {
@@ -29,12 +29,13 @@ public class AuthManager {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login first", HttpResponseStatus.UNAUTHORIZED);
         }
 
-        if (!dbm.verify(token, ip)) {
+        account = dbm.verify(token, ip);
+        if (account == null) {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login again", HttpResponseStatus.UNAUTHORIZED);
         }
 
-        loginManager = new LoginManager(accountManager.id, accountManager.pwd);
-        this.profile = profileDatas.get(accountManager.id);
+        loginManager = new LoginManager(account.id, account.pwd);
+        this.profile = profileDatas.get(account.id);
     }
 
     public AuthManager(String id, String pwd, String ip) throws ErrorException, IOException, SQLException {
@@ -45,8 +46,8 @@ public class AuthManager {
 
         loginManager = new LoginManager(id, pwd);
         String clientToken = createClientToken(id, pwd);
-        accountManager = new AccountManager(id, ip, pwd, clientToken, createServerToken(clientToken, ip));
-        dbm.add(accountManager);
+        account = new Account(id, ip, pwd, clientToken, createServerToken(clientToken, ip));
+        dbm.add(account);
 
         cookie = new DefaultCookie("token", clientToken);
         cookie.setDomain(".api.xserver.tw");
@@ -56,9 +57,9 @@ public class AuthManager {
 
         if (!profileDatas.containsKey(id)) {
             profile = getProfile(loginManager);
-            profileDatas.put(accountManager.id, profile);
+            profileDatas.put(account.id, profile);
         } else {
-            profile = profileDatas.get(accountManager.id);
+            profile = profileDatas.get(account.id);
         }
     }
 

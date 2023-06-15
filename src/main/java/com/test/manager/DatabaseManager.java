@@ -1,5 +1,7 @@
 package com.test.manager;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.*;
 
 public class DatabaseManager {
@@ -12,40 +14,47 @@ public class DatabaseManager {
         if (!stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='certificate';").next()) {
             // create a table
             stmt.executeUpdate("CREATE TABLE 'certificate' (" +
-                    "client_token INT PRIMARY KEY  NOT NULL   ON CONFLICT FAIL, " +
+                    "client_token INT PRIMARY KEY  NOT NULL ON CONFLICT FAIL, " +
                     "id             TEXT NOT NULL, " +
                     "pwd            TEXT NOT NULL, " +
                     "ip             TEXT NOT NULL, " +
-                    "server_token    TEXT NOT NULL  " +
+                    "server_token   TEXT NOT NULL  " +
                     ")"
             );
         }
         stmt.close();
     }
 
-    public void add(AccountManager accountManager) throws SQLException {
-        String insert = "INSERT OR REPLACE INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
+    public void add(Account account) throws SQLException {
+        String insert = "INSERT INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
         PreparedStatement createMessage = conn.prepareStatement(insert);
-        createMessage.setString(1, accountManager.clientToken);
-        createMessage.setString(2, accountManager.id);
-        createMessage.setString(3, accountManager.pwd);
-        createMessage.setString(4, accountManager.ip);
-        createMessage.setString(5, accountManager.serverToken);
+        createMessage.setString(1, account.clientToken);
+        createMessage.setString(2, account.id);
+        createMessage.setString(3, account.pwd);
+        createMessage.setString(4, account.ip);
+        createMessage.setString(5, account.serverToken);
         createMessage.executeUpdate();
     }
 
-    public boolean verify(String clientToken, String ip) {
+    @Nullable
+    public Account verify(String clientToken, String ip) {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(
-                    String.format("SELECT ip FROM 'certificate' WHERE client_token = '%s'", clientToken)
+                    String.format("SELECT * FROM 'certificate' WHERE client_token = '%s'", clientToken)
             );
-            boolean ret = rs.getString("ip").equals(ip);
-            stmt.close();
-            return ret;
+
+            if (!ip.equals(rs.getString("ip"))) return null;
+
+            return new Account(
+                    rs.getString("id"),
+                    rs.getString("ip"),
+                    rs.getString("pwd"),
+                    clientToken,
+                    rs.getString("server_token")
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            return null;
         }
     }
 }
