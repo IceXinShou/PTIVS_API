@@ -24,7 +24,7 @@ public class DatabaseManager {
     }
 
     public void add(AccountManager accountManager) throws SQLException {
-        String insert = "INSERT INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
+        String insert = "INSERT OR REPLACE INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
         PreparedStatement createMessage = conn.prepareStatement(insert);
         createMessage.setString(1, accountManager.clientToken);
         createMessage.setString(2, accountManager.id);
@@ -40,9 +40,11 @@ public class DatabaseManager {
             ResultSet rs = stmt.executeQuery(
                     String.format("SELECT ip FROM 'certificate' WHERE client_token = '%s'", clientToken)
             );
+            boolean ret = rs.getString("ip").equals(ip);
             stmt.close();
-            return rs.getString("ip").equals(ip);
+            return ret;
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
