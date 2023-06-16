@@ -35,7 +35,13 @@ public class AuthManager {
         }
 
         loginManager = new LoginManager(account.id, account.pwd);
-        this.profile = profileDatas.get(account.id);
+
+        if (!profileDatas.containsKey(account.id)) {
+            profile = getProfile(loginManager);
+            profileDatas.put(account.id, profile);
+        } else {
+            profile = profileDatas.get(account.id);
+        }
     }
 
     public AuthManager(String id, String pwd, String ip) throws ErrorException, IOException, SQLException {
@@ -55,12 +61,8 @@ public class AuthManager {
         cookie.setMaxAge(94672800L);
         cookie.setSecure(true);
 
-        if (!profileDatas.containsKey(id)) {
-            profile = getProfile(loginManager);
-            profileDatas.put(account.id, profile);
-        } else {
-            profile = profileDatas.get(account.id);
-        }
+        profile = getProfile(loginManager);
+        profileDatas.put(account.id, profile);
     }
 
     private String createClientToken(String id, String pwd) {
