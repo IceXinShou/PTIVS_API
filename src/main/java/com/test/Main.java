@@ -61,7 +61,7 @@ public class Main {
                                     .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
                                     .addLast(new HttpServerCodec()) // 設定編解碼器
                                     .addLast(new DomainLimitHandler()) // 設定連線路徑限制
-                                    .addLast(new RateLimitHandler()) // 設定流量限制
+                                    .addLast(new RateLimitHandler("127.0.0.1")) // 設定流量限制
                                     .addLast(new HttpObjectAggregator(65536)) // 整合輸出入資料
                                     .addLast(new ClientHandler()); // 處理資料
                         }

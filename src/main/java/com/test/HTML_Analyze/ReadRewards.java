@@ -88,7 +88,10 @@ public class ReadRewards {
             Elements e_total = tables.get(2).getElementsByTag("tr").get(1).children();
             JSONObject total = new JSONObject();
             output.put("獎懲統計", total);
-            for (int i = 0; i < 10; i++) {
+
+            total.put(PREVIEW_LABEL[0], Integer.parseInt(e_total.get(0).text().trim()));
+            total.put(PREVIEW_LABEL[1], Integer.parseInt(e_total.get(1).text().trim()));
+            for (int i = 2; i < 10; i++) {
                 total.put(PREVIEW_LABEL[i], e_total.get(i).text().trim());
             }
 

@@ -23,7 +23,10 @@ public class ReadAbsent {
             Elements e_preview = tables.get(2).getElementsByTag("tr").get(1).children();
             JSONObject preview = new JSONObject();
             output.put("統計", preview);
-            for (int i = 0; i < 10; i++) {
+
+            preview.put(PREVIEW_LABEL[0], Integer.parseInt(e_preview.get(0).text().trim()));
+            preview.put(PREVIEW_LABEL[1], Integer.parseInt(e_preview.get(1).text().trim()));
+            for (int i = 2; i < 10; i++) {
                 preview.put(PREVIEW_LABEL[i], e_preview.get(i).text().trim());
             }
 

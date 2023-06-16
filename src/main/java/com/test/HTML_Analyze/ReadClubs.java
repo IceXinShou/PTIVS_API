@@ -26,8 +26,8 @@ public class ReadClubs {
                 tmp.put("學期", children.get(1).text().trim().equals("第一學期") ? 1 : 2);
                 tmp.put("社團名稱", children.get(2).text().trim());
                 tmp.put("社團組別", children.get(3).text().trim());
-                tmp.put("社團活動地點", children.get(5).text().trim());
-                tmp.put("擔任職位", getInt(children.get(6).text().trim()));
+                tmp.put("擔任職位", children.get(5).text().trim());
+                tmp.put("社團成績", getInt(children.get(6).text().trim()));
             }
         } catch (Exception e) {
             e.printStackTrace();
