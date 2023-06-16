@@ -1,24 +1,24 @@
-package com.test.manager;
+package tw.xserver.manager;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 
 public class DatabaseManager {
-    public static Connection conn;
+    public static Connection conn_cert;
 
     public DatabaseManager() throws SQLException {
-        conn = DriverManager.getConnection("jdbc:sqlite:./data.db");
+        conn_cert = DriverManager.getConnection("jdbc:sqlite:./certificate.db");
 
-        Statement stmt = conn.createStatement();
+        Statement stmt = conn_cert.createStatement();
         if (!stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='certificate';").next()) {
             // create a table
             stmt.executeUpdate("CREATE TABLE 'certificate' (" +
-                    "client_token INT PRIMARY KEY  NOT NULL ON CONFLICT FAIL, " +
-                    "id             TEXT NOT NULL, " +
-                    "pwd            TEXT NOT NULL, " +
-                    "ip             TEXT NOT NULL, " +
-                    "server_token   TEXT NOT NULL  " +
+                    "client_token TEXT PRIMARY KEY  NOT NULL ON CONFLICT FAIL, " +
+                    "id           TEXT NOT NULL, " +
+                    "pwd          TEXT NOT NULL, " +
+                    "ip           TEXT NOT NULL, " +
+                    "server_token TEXT NOT NULL  " +
                     ")"
             );
         }
@@ -27,7 +27,7 @@ public class DatabaseManager {
 
     public void add(Account account) throws SQLException {
         String insert = "INSERT OR REPLACE INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
-        PreparedStatement createMessage = conn.prepareStatement(insert);
+        PreparedStatement createMessage = conn_cert.prepareStatement(insert);
         createMessage.setString(1, account.clientToken);
         createMessage.setString(2, account.id);
         createMessage.setString(3, account.pwd);
@@ -43,9 +43,9 @@ public class DatabaseManager {
             Statement stmt = null;
             ResultSet rs = null;
             try {
-                stmt = conn.createStatement();
+                stmt = conn_cert.createStatement();
                 rs = stmt.executeQuery(
-                        String.format("SELECT * FROM 'certificate' WHERE client_token = '%s'", clientToken)
+                        String.format("SELECT id, ip, pwd, server_token FROM 'certificate' WHERE client_token = '%s'", clientToken)
                 );
 
                 if (!ip.equals(rs.getString("ip"))) return null;

@@ -1,12 +1,13 @@
-package com.test;
+package tw.xserver;
 
-import com.test.handler.ClientHandler;
-import com.test.handler.DomainLimitHandler;
-import com.test.handler.RateLimitHandler;
-import com.test.manager.DatabaseManager;
+import tw.xserver.handler.ClientHandler;
+import tw.xserver.handler.RateLimitHandler;
+import tw.xserver.manager.RefreshCache;
+import tw.xserver.manager.DatabaseManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -22,6 +23,8 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.Base64;
 
+import static tw.xserver.handler.ClientHandler.getTime;
+
 public class Main {
     public static byte[] favicon;
     public static String defaultID;
@@ -29,6 +32,7 @@ public class Main {
     private final SslContext sslCtx;
     private final int port;
     public static DatabaseManager dbm;
+    public static RefreshCache cache;
 
     public Main(String[] args) throws SSLException, SQLException {
         this.port = Integer.parseInt(args[0]);
@@ -40,6 +44,7 @@ public class Main {
         favicon = loadFavicon("./icon/favicon-32x32.png");
 
         dbm = new DatabaseManager();
+        cache = new RefreshCache();
     }
 
     public static void main(String[] args) throws Exception {
@@ -57,18 +62,20 @@ public class Main {
                     .childHandler(new ChannelInitializer<SocketChannel>() { // 指定每個客戶端連接的處理器
                         @Override
                         protected void initChannel(@NotNull SocketChannel ch) { // 添加自定義的伺服器處理器
-                            ch.pipeline()
-                                    .addLast(sslCtx.newHandler(ch.alloc())) // 設定加解密器，確保所有資料安全
-                                    .addLast(new HttpServerCodec()) // 設定編解碼器
-                                    .addLast(new DomainLimitHandler()) // 設定連線路徑限制
-                                    .addLast(new RateLimitHandler("172.70.211.29")) // 設定流量限制
-                                    .addLast(new HttpObjectAggregator(65536)) // 整合輸出入資料
-                                    .addLast(new ClientHandler()); // 處理資料
+                            final ChannelPipeline pipeline = ch.pipeline();
+                            if (!ch.remoteAddress().getAddress().getHostAddress().equals("127.0.0.1")) { // 設定加解密器
+                                pipeline.addLast(sslCtx.newHandler(ch.alloc()));
+                            }
+
+                            pipeline.addLast(new HttpServerCodec()); // 設定編解碼器
+                            pipeline.addLast(new RateLimitHandler()); // 設定流量限制
+                            pipeline.addLast(new HttpObjectAggregator(65536));// 整合輸出入資料
+                            pipeline.addLast(new ClientHandler()); // 處理資料
                         }
                     });
             ChannelFuture f = b.bind(port).sync(); // 綁定至端口
 
-            System.out.println("Server started\n");
+            System.out.println(getTime() + " server started");
 
             f.channel().closeFuture().sync(); // 等待程式結束並關閉端口
         } finally {

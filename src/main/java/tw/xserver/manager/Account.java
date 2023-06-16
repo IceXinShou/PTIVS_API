@@ -1,4 +1,4 @@
-package com.test.manager;
+package tw.xserver.manager;
 
 public class Account {
     final String id;

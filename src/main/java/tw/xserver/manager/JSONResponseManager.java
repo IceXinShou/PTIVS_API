@@ -1,4 +1,4 @@
-package com.test.manager;
+package tw.xserver.manager;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

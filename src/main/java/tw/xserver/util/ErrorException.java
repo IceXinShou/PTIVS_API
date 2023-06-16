@@ -1,4 +1,4 @@
-package com.test.util;
+package tw.xserver.util;
 
 import io.netty.handler.codec.http.HttpResponseStatus;
 

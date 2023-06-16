@@ -1,20 +1,20 @@
-package com.test.manager;
+package tw.xserver.manager;
 
 import com.google.common.hash.Hashing;
-import com.test.util.ErrorException;
+import tw.xserver.util.ErrorException;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.jsoup.select.Elements;
+import tw.xserver.util.PageKey;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.test.Main.*;
-import static com.test.util.PageKey.CLUBS;
+import static tw.xserver.Main.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AuthManager {
@@ -23,6 +23,7 @@ public class AuthManager {
     public Cookie cookie = null;
     private final Account account;
     public LoginManager loginManager;
+    public String id;
 
     public AuthManager(@Nullable String token, String ip) throws ErrorException, IOException {
         if (token == null) {
@@ -34,18 +35,18 @@ public class AuthManager {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login again", HttpResponseStatus.UNAUTHORIZED);
         }
 
-        loginManager = new LoginManager(account.id, account.pwd);
+        id = account.id;
+        loginManager = new LoginManager(id, account.pwd);
 
-        if (!profileDatas.containsKey(account.id)) {
+        if (!profileDatas.containsKey(id)) {
             profile = getProfile(loginManager);
-            profileDatas.put(account.id, profile);
+            profileDatas.put(id, profile);
         } else {
-            profile = profileDatas.get(account.id);
+            profile = profileDatas.get(id);
         }
     }
 
     public AuthManager(String id, String pwd, String ip) throws ErrorException, IOException, SQLException {
-
         if (id.equals(defaultID) && pwd.equals("A123456789")) {
             pwd = defaultPWD;
         }
@@ -76,7 +77,7 @@ public class AuthManager {
     }
 
     private JSONObject getProfile(final LoginManager login) throws IOException, ErrorException {
-        Elements userDatas = login.fetchPageData(CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
+        Elements userDatas = login.fetchPageData(PageKey.CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
         JSONObject output = new JSONObject();
         Elements userData = userDatas.last().children();
         String semesterStr = userData.get(0).text().trim();

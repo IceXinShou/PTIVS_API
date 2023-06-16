@@ -1,7 +1,7 @@
-package com.test.handler;
+package tw.xserver.handler;
 
-import com.test.manager.JSONResponseManager;
-import com.test.util.ErrorException;
+import tw.xserver.manager.JSONResponseManager;
+import tw.xserver.util.ErrorException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static com.test.Main.favicon;
+import static tw.xserver.Main.favicon;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
-    private static String getTime() {
+    public static String getTime() {
         return "[" + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "]";
     }
 
@@ -39,6 +39,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             HttpMethod method = request.method();
             HttpHeaders headers = request.headers();
             String realIP = headers.get("CF-Connecting-IP");
+            if (realIP == null)
+                realIP = headers.get("Host").split(":")[0];
             System.out.println(getTime() + ' ' + method + ": " + uri + " (" + realIP + ")");
 
             if (uri.equals("/favicon.ico")) {

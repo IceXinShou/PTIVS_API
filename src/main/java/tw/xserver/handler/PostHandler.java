@@ -1,8 +1,8 @@
-package com.test.handler;
+package tw.xserver.handler;
 
-import com.test.manager.AuthManager;
-import com.test.manager.JSONResponseManager;
-import com.test.util.ErrorException;
+import tw.xserver.manager.AuthManager;
+import tw.xserver.manager.JSONResponseManager;
+import tw.xserver.util.ErrorException;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -14,6 +14,8 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static tw.xserver.Main.cache;
 
 class PostHandler {
     private final ChannelHandlerContext ctx;
@@ -50,10 +52,13 @@ class PostHandler {
         /* try to log-in */
         HttpHeaders headers = request.headers();
         String realIP = headers.get("CF-Connecting-IP");
+        if (realIP == null)
+            realIP = headers.get("Host").split(":")[0];
         JSONResponseManager response = new JSONResponseManager(ctx);
+        AuthManager authManager = null;
 
         try {
-            AuthManager authManager = new AuthManager(id, pwd, realIP);
+            authManager = new AuthManager(id, pwd, realIP);
 
             response.json
                     .put("token", authManager.cookie.value())
@@ -70,6 +75,8 @@ class PostHandler {
         } finally {
             ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
         }
+
+        cache.refreshCache(authManager.loginManager);
     }
 
     private Map<String, String> readContent(final String content) {

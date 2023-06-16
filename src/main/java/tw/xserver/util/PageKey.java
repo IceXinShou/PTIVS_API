@@ -1,4 +1,4 @@
-package com.test.util;
+package tw.xserver.util;
 
 public enum PageKey {
     ABSENT("010010"),

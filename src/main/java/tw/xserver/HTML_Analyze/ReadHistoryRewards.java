@@ -1,4 +1,4 @@
-package com.test.HTML_Analyze;
+package tw.xserver.HTML_Analyze;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -6,8 +6,8 @@ import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import static com.test.HTML_Analyze.Util.dateConvert;
-import static com.test.HTML_Analyze.Util.getInt;
+import static tw.xserver.HTML_Analyze.Util.dateConvert;
+import static tw.xserver.HTML_Analyze.Util.getInt;
 
 public class ReadHistoryRewards {
     private static final String[] PREVIEW_LABEL = {"年度", "學期", "大功", "小功", "嘉獎", "優點", "大過", "小過", "警告", "缺點"};

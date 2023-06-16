@@ -1,9 +1,9 @@
-package com.test.handler;
+package tw.xserver.handler;
 
-import com.test.manager.AuthManager;
-import com.test.manager.JSONResponseManager;
-import com.test.manager.LoginManager;
-import com.test.util.ErrorException;
+import tw.xserver.manager.AuthManager;
+import tw.xserver.manager.JSONResponseManager;
+import tw.xserver.manager.LoginManager;
+import tw.xserver.util.ErrorException;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -12,22 +12,14 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
+import tw.xserver.HTML_Analyze.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.test.HTML_Analyze.ReadAbsent.readAbsent;
-import static com.test.HTML_Analyze.ReadCadres.readCadres;
-import static com.test.HTML_Analyze.ReadClassTable.readClassTable;
-import static com.test.HTML_Analyze.ReadClubs.readClubs;
-import static com.test.HTML_Analyze.ReadHistoryAbsent.readHistoryAbsent;
-import static com.test.HTML_Analyze.ReadHistoryRewards.readHistoryRewards;
-import static com.test.HTML_Analyze.ReadHistoryScore.readHistoryScore;
-import static com.test.HTML_Analyze.ReadPunishedCancelLog.readPunishedCancelLog;
-import static com.test.HTML_Analyze.ReadRewards.readRewards;
-import static com.test.HTML_Analyze.ReadScore.readScore;
-import static com.test.util.PageKey.*;
+import static tw.xserver.Main.cache;
+import static tw.xserver.util.PageKey.*;
 
 public class GetHandler {
     private final ChannelHandlerContext ctx;
@@ -69,50 +61,55 @@ public class GetHandler {
         }
 
         String realIP = headers.get("CF-Connecting-IP");
+        if (realIP == null)
+            realIP = headers.get("Host").split(":")[0];
 
         /* Check Cookie */
         AuthManager authManager = new AuthManager(cookies.get("token"), realIP);
         LoginManager login = authManager.loginManager;
+        String id = authManager.id;
         switch (args[3].toLowerCase()) {
             case "absent" -> {
                 // 學期缺曠課 010010
-                putData(readAbsent(login.fetchPageData(ABSENT)));
+//                putData(readAbsent(login.fetchPageData(ABSENT)));
+                putData(cache.get(id, "absent"));
             }
             case "history_absent" -> {
                 // 歷年缺曠課 010030
-                putData(readHistoryAbsent(login.fetchPageData(HISTORY_ABSENT)));
+                putData(ReadHistoryAbsent.readHistoryAbsent(login.fetchPageData(HISTORY_ABSENT)));
             }
             case "rewards" -> {
                 // 學期獎懲 010040
-                putData(readRewards(login.fetchPageData(REWARDS)));
+//                putData(readRewards(login.fetchPageData(REWARDS)));
+                putData(cache.get(id, "rewards"));
             }
             case "score" -> {
                 // 學期成績 010090
-                putData(readScore(login.fetchPageData(SCORE)));
+                putData(ReadScore.readScore(login.fetchPageData(SCORE)));
             }
             case "history_rewards" -> {
                 // 歷年獎懲 010050
-                putData(readHistoryRewards(login.fetchPageData(HISTORY_REWARDS)));
+                putData(ReadHistoryRewards.readHistoryRewards(login.fetchPageData(HISTORY_REWARDS)));
             }
             case "punished_cancel_log" -> {
                 // 銷過紀錄 010060
-                putData(readPunishedCancelLog(login.fetchPageData(PUNISHED_CANCEL_LOG)));
+                putData(ReadPunishedCancelLog.readPunishedCancelLog(login.fetchPageData(PUNISHED_CANCEL_LOG)));
             }
             case "clubs" -> {
                 // 參與社團 010070
-                putData(readClubs(login.fetchPageData(CLUBS)));
+                putData(ReadClubs.readClubs(login.fetchPageData(CLUBS)));
             }
             case "cadres" -> {
                 // 擔任幹部 010080
-                putData(readCadres(login.fetchPageData(CADRES)));
+                putData(ReadCadres.readCadres(login.fetchPageData(CADRES)));
             }
             case "history_score" -> {
                 // 歷年成績 010110
-                putData(readHistoryScore(login.fetchPageData(HISTORY_SCORE)));
+                putData(ReadHistoryScore.readHistoryScore(login.fetchPageData(HISTORY_SCORE)));
             }
             case "class_table" -> {
                 // 課表 010130
-                putData(readClassTable(login.fetchPageData(CLASS_TABLE)));
+                putData(ReadClassTable.readClassTable(login.fetchPageData(CLASS_TABLE)));
             }
             default -> {
                 return;
