@@ -82,34 +82,50 @@ Cookie: token=your_token
 ```json
 {
   "data": {
-    "profile": {
-      "name": "黃宥維",
-      "semester": 111,
-      "semester2": 2,
-      "id": "013129",
-      "class": "資訊二甲"
-    },
-    "detail": [
+    "參與社團": [
       {
-        "score": 4,
-        "name": "網頁設計",
-        "semester": 110,
-        "semester2": 1,
-        "position": "社員",
-        "group": "A"
+        "年度": 110,
+        "學期": 1,
+        "社團名稱": "網頁設計",
+        "社團組別": "A",
+        "擔任職位": "社員",
+        "社團成績": 4
       },
       {
-        "score": 0,
-        "name": "網頁設計",
-        "semester": 111,
-        "semester2": 2,
-        "position": "社長",
-        "group": "A"
+        "年度": 110,
+        "學期": 2,
+        "社團名稱": "網頁設計",
+        "社團組別": "A",
+        "擔任職位": "社員",
+        "社團成績": 4
+      },
+      {
+        "年度": 111,
+        "學期": 1,
+        "社團名稱": "網頁設計",
+        "社團組別": "A",
+        "擔任職位": "社長",
+        "社團成績": 4
+      },
+      {
+        "年度": 111,
+        "學期": 2,
+        "社團名稱": "網頁設計",
+        "社團組別": "A",
+        "擔任職位": "社長",
+        "社團成績": 0
       }
-    ]
+    ],
+    "profile": {
+      "姓名": "黃宥維",
+      "班級": "資訊二甲",
+      "學年": 111,
+      "學期": 2,
+      "學號": "013129"
+    }
   },
   "success": true,
-  "time": "2023-05-29T10:52:20.982574"
+  "time": "2023-06-16T17:51:55.011435400"
 }
 ```
 
@@ -150,7 +166,7 @@ the PTIVS API.
 * Request rate limiting
 * Obtaining real IP addresses
 * Modular programming
-* Restricted access to specified paths (Domain Limit), e.g., api.xserver.tw
+* Restricted access to specified paths (Domain Limit)
 * Switched to GET and POST methods
 * Optimized login process using cookies
 * User caching
@@ -158,9 +174,17 @@ the PTIVS API.
 * README.md beautify
 * Line App init support
 
-> Please note that the PTIVS API has undergone significant updates and improvements in version 2.0.
+### 3.0
 
-> Note: The above information is provided as a brief summary of the updates made in version 2.0. For detailed
+* Database Support
+* Line App Support
+* Require TLS 1.2 up
+* Content Language zh-TW
+* 
+
+> Please note that the PTIVS API has undergone significant updates and improvements in version 3.0.
+
+> Note: The above information is provided as a brief summary of the updates made in version 3.0. For detailed
 > documentation on each feature and endpoint, please refer to the relevant sections in the API documentation.
 
 ---
@@ -175,8 +199,8 @@ Example:
 curl -X POST -d "id=013129&pwd=A123456789" https://api.xserver.tw/ptivs/login/
 curl -X GET --cookie "token=替換為cookie值" https://api.xserver.tw/ptivs/get/clubs/
 ```
-> If not usable, add `--insecure` at the end of commands
+
 
 ---
 
-Author: Huang-You-Wei (XinShou#4767)
+Author: Huang-You-Wei (Discord: xs._.b)
