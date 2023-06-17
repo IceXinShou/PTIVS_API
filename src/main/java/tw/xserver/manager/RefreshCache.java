@@ -13,7 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static tw.xserver.handler.ClientHandler.getTime;
-import static tw.xserver.manager.DatabaseManager.conn_cert;
+import static tw.xserver.manager.CertificateManager.conn_cert;
 import static tw.xserver.util.PageKey.ABSENT;
 import static tw.xserver.util.PageKey.REWARDS;
 

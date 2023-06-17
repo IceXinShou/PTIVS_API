@@ -4,10 +4,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 
-public class DatabaseManager {
+public class CertificateManager {
     public static Connection conn_cert;
 
-    public DatabaseManager() throws SQLException {
+    public CertificateManager() throws SQLException {
         conn_cert = DriverManager.getConnection("jdbc:sqlite:./certificate.db");
 
         Statement stmt = conn_cert.createStatement();

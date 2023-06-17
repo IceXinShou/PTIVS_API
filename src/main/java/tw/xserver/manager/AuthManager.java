@@ -30,7 +30,7 @@ public class AuthManager {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login first", HttpResponseStatus.UNAUTHORIZED);
         }
 
-        account = dbm.verify(token, ip);
+        account = certificate.verify(token, ip);
         if (account == null) {
             throw new ErrorException("please POST 'id' and 'pwd' to '/ptivs/login/' for login again", HttpResponseStatus.UNAUTHORIZED);
         }
@@ -54,7 +54,7 @@ public class AuthManager {
         loginManager = new LoginManager(id, pwd);
         String clientToken = createClientToken(id, pwd);
         account = new Account(id, ip, pwd, clientToken, createServerToken(clientToken, ip));
-        dbm.add(account);
+        certificate.add(account);
 
         cookie = new DefaultCookie("token", clientToken);
         cookie.setDomain(".api.xserver.tw");

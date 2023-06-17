@@ -3,7 +3,7 @@ package tw.xserver;
 import tw.xserver.handler.ClientHandler;
 import tw.xserver.handler.RateLimitHandler;
 import tw.xserver.manager.RefreshCache;
-import tw.xserver.manager.DatabaseManager;
+import tw.xserver.manager.CertificateManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -29,21 +29,21 @@ public class Main {
     public static byte[] favicon;
     public static String defaultID;
     public static String defaultPWD;
-    private final SslContext sslCtx;
-    private final int port;
-    public static DatabaseManager dbm;
+    private static SslContext sslCtx;
+    private static int port;
+    public static CertificateManager certificate;
     public static RefreshCache cache;
 
     public Main(String[] args) throws SSLException, SQLException {
-        this.port = Integer.parseInt(args[0]);
+        port = Integer.parseInt(args[0]);
         defaultID = args[1];
         defaultPWD = new String(Base64.getDecoder().decode(args[2]));
-        this.sslCtx = SslContextBuilder.forServer(
+        sslCtx = SslContextBuilder.forServer(
                 new File("./key/certchain.pem"), new File("./key/privatekey.pem")
         ).build();
         favicon = loadFavicon("./icon/favicon-32x32.png");
 
-        dbm = new DatabaseManager();
+        certificate = new CertificateManager();
         cache = new RefreshCache();
     }
 
