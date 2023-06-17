@@ -178,9 +178,7 @@ the PTIVS API.
 
 * Database Support
 * Line App Support
-* Require TLS 1.2 up
 * Content Language zh-TW
-* 
 
 > Please note that the PTIVS API has undergone significant updates and improvements in version 3.0.
 
