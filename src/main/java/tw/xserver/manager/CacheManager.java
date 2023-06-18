@@ -7,6 +7,7 @@ import tw.xserver.util.ErrorException;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.Base64;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +69,7 @@ public class CacheManager {
                 try {
                     System.out.println(getTime() + " refreshing for index: " + count + " account...");
                     String id = rs_cert.getString("id");
-                    LoginManager login = new LoginManager(id, rs_cert.getString("pwd"));
+                    LoginManager login = new LoginManager(id, new String(Base64.getDecoder().decode(rs_cert.getString("pwd"))));
 
                     refreshCache(login);
                 } catch (ErrorException | IOException e) {

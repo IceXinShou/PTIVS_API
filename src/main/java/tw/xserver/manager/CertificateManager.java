@@ -3,6 +3,7 @@ package tw.xserver.manager;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
+import java.util.Base64;
 
 public class CertificateManager {
     public static Connection conn_cert;
@@ -37,7 +38,7 @@ public class CertificateManager {
         PreparedStatement createMessage = conn_cert.prepareStatement(insert);
         createMessage.setString(1, account.clientToken);
         createMessage.setString(2, account.id);
-        createMessage.setString(3, account.pwd);
+        createMessage.setString(3, Base64.getEncoder().encodeToString(account.pwd.getBytes()));
         createMessage.setString(4, account.ip);
         createMessage.setString(5, account.serverToken);
         createMessage.executeUpdate();
@@ -65,7 +66,7 @@ public class CertificateManager {
                 return new Account(
                         rs.getString("id"),
                         rs.getString("ip"),
-                        rs.getString("pwd"),
+                        rs.getString(new String(Base64.getDecoder().decode(rs.getString("pwd")))),
                         clientToken,
                         rs.getString("server_token")
                 );
