@@ -33,16 +33,18 @@ public class ReadAbsent {
             Elements e_detail = tables.get(4).getElementsByTag("tr");
             JSONArray detail = new JSONArray();
             output.put("資料表", detail);
-            for (int i = 1; i < e_detail.size(); ++i) {
-                Elements children = e_detail.get(i).children();
-                JSONObject data = new JSONObject();
-                detail.put(data);
+            if (!(e_detail.size() == 2 && e_detail.get(1).children().size() == 1)) {
+                for (int i = 1; i < e_detail.size(); ++i) {
+                    Elements children = e_detail.get(i).children();
+                    JSONObject data = new JSONObject();
+                    detail.put(data);
 
-                data.put("日期", dateConvert(children.get(2).text().trim().split("/")));
+                    data.put("日期", dateConvert(children.get(2).text().trim().split("/")));
 
-                for (int j = 3; j < 13; ++j) {
-                    if (children.get(j).text().trim().equals("0")) continue;
-                    data.put(CLASS_LABEL[j - 3], children.get(j).text().trim());
+                    for (int j = 3; j < 13; ++j) {
+                        if (children.get(j).text().trim().equals("0")) continue;
+                        data.put(CLASS_LABEL[j - 3], children.get(j).text().trim());
+                    }
                 }
             }
         } catch (Exception e) {

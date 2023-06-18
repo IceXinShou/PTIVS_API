@@ -66,6 +66,7 @@ public class CacheManager {
             while (rs_cert.next()) {
                 count++;
                 try {
+                    System.out.println(getTime() + " refreshing for index: " + count + " account...");
                     String id = rs_cert.getString("id");
                     LoginManager login = new LoginManager(id, rs_cert.getString("pwd"));
 

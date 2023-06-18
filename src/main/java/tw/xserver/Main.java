@@ -74,7 +74,7 @@ public class Main extends ChannelInboundHandlerAdapter {
 
                             if (!ch.remoteAddress().getAddress().getHostAddress().equals("127.0.0.1")) {
                                 // 若請求不來自本地端
-                                pipeline.addLast(newHandler(ch.alloc())); // 加解密器
+                                pipeline.addLast(sslCtx.newHandler(ch.alloc())); // 加解密器
                                 pipeline.addLast(new HttpServerCodec()); // 編解碼器
                                 pipeline.addLast(new RateLimitHandler()); // 流量限制
                             } else {
@@ -98,18 +98,6 @@ public class Main extends ChannelInboundHandlerAdapter {
         }
 
         /* 主程式結束 */
-    }
-
-    public SslHandler newHandler(ByteBufAllocator alloc) {
-        SslHandler sslHandler = null;
-        try {
-            sslHandler = sslCtx.newHandler(alloc);
-        } catch (DecoderException e) {
-            System.out.println("123");
-            e.printStackTrace();
-        }
-
-        return sslHandler;
     }
 
     private byte[] loadFavicon(String path) {
