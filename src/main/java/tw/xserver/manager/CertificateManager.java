@@ -59,14 +59,17 @@ public class CertificateManager {
                 );
 
                 /* 核對 IP 身分 */
-                if (!ip.equals(rs.getString("ip")))
+                if (!ip.equals(rs.getString("ip"))) {
+                    System.out.println(ip);
+                    System.out.println("ERROR");
                     return null;
+                }
 
                 /* 回傳帳號資訊 */
                 return new Account(
                         rs.getString("id"),
                         rs.getString("ip"),
-                        rs.getString(new String(Base64.getDecoder().decode(rs.getString("pwd")))),
+                        new String(Base64.getDecoder().decode(rs.getString("pwd"))),
                         clientToken,
                         rs.getString("server_token")
                 );
@@ -87,6 +90,7 @@ public class CertificateManager {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             return null;
         }
     }
