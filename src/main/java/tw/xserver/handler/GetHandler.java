@@ -38,7 +38,7 @@ public class GetHandler {
         String[] args = request.uri().split("/");
 
         /* 過濾請求 */
-        if (args.length > 1 && !args[2].equalsIgnoreCase("get"))
+        if (args.length > 2 && !args[2].equalsIgnoreCase("get"))
             return;
 
         HttpHeaders headers = request.headers();
