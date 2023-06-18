@@ -2,7 +2,7 @@ package tw.xserver.manager;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import tw.xserver.HTML_Analyze.*;
+import tw.xserver.analyze_HTML.*;
 import tw.xserver.util.ErrorException;
 
 import java.io.IOException;
@@ -161,6 +161,39 @@ public class CacheManager {
         JSONObject cadres = ReadCadres.read(login.fetchPageData(CADRES));
         JSONObject history_score = ReadHistoryScore.read(login.fetchPageData(HISTORY_SCORE));
         JSONObject class_table = ReadClassTable.read(login.fetchPageData(CLASS_TABLE));
+
+        if (absent == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            absent = new JSONObject("{\"error\": \"I'll fix this bug soon (0x02)\"}");
+        }
+        if (rewards == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            rewards = new JSONObject("{\"error\": \"I'll fix this bug soon (0x03)\"}");
+        }
+        if (history_rewards == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            history_rewards = new JSONObject("{\"error\": \"I'll fix this bug soon (0x04)\"}");
+        }
+        if (punished_cancel_log == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            punished_cancel_log = new JSONObject("{\"error\": \"I'll fix this bug soon (0x05)\"}");
+        }
+        if (clubs == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            clubs = new JSONObject("{\"error\": \"I'll fix this bug soon (0x06)\"}");
+        }
+        if (cadres == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            cadres = new JSONObject("{\"error\": \"I'll fix this bug soon (0x07)\"}");
+        }
+        if (history_score == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            history_score = new JSONObject("{\"error\": \"I'll fix this bug soon (0x08)\"}");
+        }
+        if (class_table == null) {
+            System.out.println(login.fetchPageData(ABSENT));
+            class_table = new JSONObject("{\"error\": \"I'll fix this bug soon (0x09)\"}");
+        }
 
         /* 新增進資料庫 */
         String insert = "INSERT OR REPLACE INTO 'cache' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
