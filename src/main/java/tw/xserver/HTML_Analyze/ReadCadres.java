@@ -42,7 +42,7 @@ import org.jsoup.select.Elements;
 public class ReadCadres {
 
     @Nullable
-    public static JSONObject readCadres(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONArray output = new JSONArray();
 
         try {

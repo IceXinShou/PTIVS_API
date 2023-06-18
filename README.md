@@ -176,9 +176,11 @@ the PTIVS API.
 
 ### 3.0
 
-* Database Support
-* Line App Support
-* Content Language zh-TW
+* Database support
+* Line App support
+* Content language change to zh-TW
+* All data cached
+* Improve response speed rate
 
 > Please note that the PTIVS API has undergone significant updates and improvements in version 3.0.
 

@@ -6,13 +6,13 @@ import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import static tw.xserver.HTML_Analyze.Util.dateConvert;
+import static tw.xserver.Util.dateConvert;
 
 public class ReadPunishedCancelLog {
     private static final String[] LABEL = {"銷功過日期", "功過狀態", "發生日期", "事由", "獎懲類別", "大功過", "小功過", "嘉獎警告", "優缺點"};
 
     @Nullable
-    public static JSONObject readPunishedCancelLog(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONArray output = new JSONArray();
 
         try {

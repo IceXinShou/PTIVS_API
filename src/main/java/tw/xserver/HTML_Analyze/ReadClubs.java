@@ -6,11 +6,11 @@ import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import static tw.xserver.HTML_Analyze.Util.getInt;
+import static tw.xserver.Util.getInt;
 
 public class ReadClubs {
     @Nullable
-    public static JSONObject readClubs(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONArray output = new JSONArray();
 
         try {
@@ -36,5 +36,4 @@ public class ReadClubs {
 
         return new JSONObject().put("參與社團", output);
     }
-
 }

@@ -6,8 +6,8 @@ import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import static tw.xserver.HTML_Analyze.Util.dateConvert;
-import static tw.xserver.HTML_Analyze.Util.getInt;
+import static tw.xserver.Util.dateConvert;
+import static tw.xserver.Util.getInt;
 
 public class ReadHistoryRewards {
     private static final String[] PREVIEW_LABEL = {"年度", "學期", "大功", "小功", "嘉獎", "優點", "大過", "小過", "警告", "缺點"};
@@ -15,7 +15,7 @@ public class ReadHistoryRewards {
     private static final String[] PUNISH_DETAIL_LABEL = {"簽呈日期", "發生日期", "事由", "懲罰", "大過", "小過", "警告", "缺點", "扣分", "功過狀態", "銷過日期", "備註"};
 
     @Nullable
-    public static JSONObject readHistoryRewards(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/src/main/java/com/test/test.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/tw/xserver/HTML_Analyze/Util.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/tw/xserver/Main.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/tw/xserver/Util.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/tw/xserver/handler/RateLimitHandler.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/tw/xserver/manager/AuthManager.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/tw/xserver/util/PageKey.java" charset="UTF-8" />

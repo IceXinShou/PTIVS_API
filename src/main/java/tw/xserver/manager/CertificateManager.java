@@ -8,8 +8,11 @@ public class CertificateManager {
     public static Connection conn_cert;
 
     public CertificateManager() throws SQLException {
+        /* 初始化 */
+        /* 連線資料庫 */
         conn_cert = DriverManager.getConnection("jdbc:sqlite:./certificate.db");
 
+        /* 初始化表格 */
         Statement stmt = conn_cert.createStatement();
         if (!stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='certificate';").next()) {
             // create a table
@@ -23,9 +26,13 @@ public class CertificateManager {
             );
         }
         stmt.close();
+
+        /* 初始化結束*/
     }
 
     public void add(Account account) throws SQLException {
+        /* 新帳號登入 */
+        /* 新增進資料庫 */
         String insert = "INSERT OR REPLACE INTO 'certificate' VALUES (?, ?, ?, ?, ?)";
         PreparedStatement createMessage = conn_cert.prepareStatement(insert);
         createMessage.setString(1, account.clientToken);
@@ -39,17 +46,22 @@ public class CertificateManager {
 
     @Nullable
     public Account verify(String clientToken, String ip) {
+        /* 新連線驗證 */
         try {
             Statement stmt = null;
             ResultSet rs = null;
             try {
+                /* 以 token 查資料庫 */
                 stmt = conn_cert.createStatement();
                 rs = stmt.executeQuery(
                         String.format("SELECT id, ip, pwd, server_token FROM 'certificate' WHERE client_token = '%s'", clientToken)
                 );
 
-                if (!ip.equals(rs.getString("ip"))) return null;
+                /* 核對 IP 身分 */
+                if (!ip.equals(rs.getString("ip")))
+                    return null;
 
+                /* 回傳帳號資訊 */
                 return new Account(
                         rs.getString("id"),
                         rs.getString("ip"),

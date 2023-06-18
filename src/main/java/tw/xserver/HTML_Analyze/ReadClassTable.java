@@ -11,7 +11,7 @@ public class ReadClassTable {
     private static final String[] dayTitles = new String[]{"星期一", "星期二", "星期三", "星期四", "星期五"};
 
     @Nullable
-    public static JSONObject readClassTable(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {

@@ -1,6 +1,9 @@
-package tw.xserver.HTML_Analyze;
+package tw.xserver;
 
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class Util {
     public static int getInt(String inp) {
@@ -14,5 +17,9 @@ public class Util {
                 .put("年", Integer.valueOf(ymd[0]))
                 .put("月", Integer.valueOf(ymd[1]))
                 .put("日", Integer.valueOf(ymd[2]));
+    }
+
+    public static String getTime() {
+        return "[" + new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()) + "]";
     }
 }

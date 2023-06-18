@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 public class ErrorException extends Exception {
     public HttpResponseStatus status = HttpResponseStatus.BAD_REQUEST;
 
+    @SuppressWarnings("unused")
     public ErrorException() {
         super();
     }

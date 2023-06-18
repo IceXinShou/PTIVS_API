@@ -1,21 +1,21 @@
 package tw.xserver.manager;
 
 import com.google.common.hash.Hashing;
-import tw.xserver.util.ErrorException;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import org.jsoup.select.Elements;
+import tw.xserver.util.ErrorException;
 import tw.xserver.util.PageKey;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static tw.xserver.Main.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static tw.xserver.Main.*;
 
 public class AuthManager {
     private static final ConcurrentHashMap<String, JSONObject> profileDatas = new ConcurrentHashMap<>();
@@ -77,11 +77,12 @@ public class AuthManager {
     }
 
     private JSONObject getProfile(final LoginManager login) throws IOException, ErrorException {
-        Elements userDatas = login.fetchPageData(PageKey.CLUBS).getElementsByTag("table").get(0).getElementsByTag("tr");
+        Elements userDatas = login.fetchPageData(PageKey.CLUBS)
+                .getElementsByTag("table").get(0).getElementsByTag("tr");
         JSONObject output = new JSONObject();
-        Elements userData = userDatas.last().children();
+        Elements userData = userDatas.get(1).children();
         String semesterStr = userData.get(0).text().trim();
-        output.put("姓名", userDatas.first().child(0).text().trim().split(" ： ")[1]);
+        output.put("姓名", userDatas.get(0).child(0).text().trim().split(" ： ")[1]);
         output.put("學年", Integer.parseInt(semesterStr.substring(0, semesterStr.lastIndexOf("學年"))));
         output.put("學期", semesterStr.endsWith("第一學期") ? 1 : 2);
         output.put("班級", userData.get(1).text().trim());

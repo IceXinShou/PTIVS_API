@@ -1,10 +1,10 @@
 package tw.xserver.manager;
 
-import tw.xserver.util.ErrorException;
-import tw.xserver.util.PageKey;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import tw.xserver.util.ErrorException;
+import tw.xserver.util.PageKey;
 
 import java.io.IOException;
 import java.util.Map;
@@ -67,6 +67,7 @@ public class LoginManager {
                 .data("local_ip", "")
                 .data("contant", "")
                 .cookies(cookieKeeper.get(id))
+                .ignoreHttpErrors(true)
                 .execute();
 
         // cookie expired

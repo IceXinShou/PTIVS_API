@@ -8,7 +8,7 @@ import org.jsoup.select.Elements;
 public class ReadHistoryAbsent {
 
     @Nullable
-    public static JSONObject readHistoryAbsent(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONObject output = new JSONObject();
 
         try {

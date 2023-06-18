@@ -9,7 +9,7 @@ import org.jsoup.select.Elements;
 public class ReadHistoryScore {
 
     @Nullable
-    public static JSONObject readHistoryScore(final Document doc) {
+    public static JSONObject read(final Document doc) {
         JSONArray output = new JSONArray();
 
         try {
