@@ -66,7 +66,7 @@ public class CertificateManager {
                 return new Account(
                         rs.getString("id"),
                         rs.getString("ip"),
-                        rs.getString(new String(Base64.getDecoder().decode(rs.getString("pwd")))),
+                        new String(Base64.getDecoder().decode(rs.getString("pwd"))),
                         clientToken,
                         rs.getString("server_token")
                 );
