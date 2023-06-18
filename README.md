@@ -51,18 +51,18 @@ To retrieve the club information, perform a GET request to the following endpoin
 
 Endpoint: https://api.xserver.tw/ptivs/get/[type]/
 
-| 請求資料                | 用途    | Endpoint Type       |
-|---------------------|-------|---------------------|
-| rewards             | 學期獎懲  | rewards             |
-| history_rewards     | 歷年獎懲  | history_rewards     |
-| punished_cancel_log | 銷過紀錄  | punished_cancel_log |
-| clubs               | 參與社團  | clubs               |
-| cadres              | 擔任幹部  | cadres              |
-| history_score       | 歷年成績  | history_score       |
-| class_table         | 課表    | class_table         |
-| absent              | 學期缺曠課 | absent              |
-| history_absent      | 歷年缺曠課 | Not available yet   |
-| score               | 學期成績  | Not available yet   |
+| 請求資料                | 用途   | Endpoint Type       |
+|---------------------|------|---------------------|
+| rewards             | 學期獎懲 | rewards             |
+| history_rewards     | 歷年獎懲 | history_rewards     |
+| punished_cancel_log | 銷過紀錄 | punished_cancel_log |
+| clubs               | 參與社團 | clubs               |
+| cadres              | 擔任幹部 | cadres              |
+| history_score       | 歷年成績 | history_score       |
+| class_table         | 課表   | class_table         |
+| absent              | 學期缺曠 | absent              |
+| history_absent      | 歷年缺曠 | Not available yet   |
+| score               | 學期成績 | Not available yet   |
 
 ### Request Headers
 
