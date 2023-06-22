@@ -8,6 +8,7 @@ import tw.xserver.util.ErrorException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Base64;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,15 +29,15 @@ public class CacheManager {
         Statement stmt = conn_cache.createStatement();
         if (!stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='cache';").next()) {
             stmt.executeUpdate("CREATE TABLE 'cache' (" +
-                    "id TEXT PRIMARY KEY      NOT NULL ON CONFLICT FAIL, " +
-                    "absent              TEXT NOT NULL, " +
+                    "id     TEXT PRIMARY  KEY NOT NULL," +
+                    "absent              TEXT NOT NULL," +
                     "rewards             TEXT NOT NULL," +
                     "history_rewards     TEXT NOT NULL," +
                     "punished_cancel_log TEXT NOT NULL," +
                     "clubs               TEXT NOT NULL," +
                     "cadres              TEXT NOT NULL," +
                     "history_score       TEXT NOT NULL," +
-                    "class_table         TEXT NOT NULL" +
+                    "class_table         TEXT NOT NULL " +
                     ")"
             );
         }
@@ -56,28 +57,53 @@ public class CacheManager {
         Statement stmt_cert = null;
         ResultSet rs_cert = null;
 
+        ExecutorService executor = Executors.newFixedThreadPool(100);
+
         try {
             stmt_cert = conn_cert.createStatement();
 
             /* 取得所有帳號資訊 */
             rs_cert = stmt_cert.executeQuery("SELECT * FROM 'certificate';");
 
-            System.out.println(getTime() + " starting refreshing...");
+            System.out.println(getTime() + " starting updating...");
             int count = 0;
             while (rs_cert.next()) {
                 count++;
                 try {
-                    System.out.println(getTime() + " refreshing for index: " + count + " account...");
                     String id = rs_cert.getString("id");
-                    LoginManager login = new LoginManager(id, new String(Base64.getDecoder().decode(rs_cert.getString("pwd"))));
+                    LoginManager login = new LoginManager(
+                            id,
+                            new String(Base64.getDecoder().decode(rs_cert.getString("pwd")))
+                    );
 
-                    refreshCache(login);
+                    System.out.println(getTime() + " updating cache: " + id);
+                    executor.submit(() -> {
+                        try {
+                            PreparedStatement update = fetchSomeData(login, false);
+                            update.executeUpdate();
+                            update.close();
+                            System.out.println(getTime() + " updated cache successfully: " + login.id);
+                        } catch (Exception e) {
+                            System.out.println(getTime() + " updated cache error: " + login.id);
+                            e.printStackTrace();
+                        }
+                    });
                 } catch (ErrorException | IOException e) {
                     e.printStackTrace();
                 }
             }
 
-            System.out.println(getTime() + " refreshing successfully for " + count + " accounts!");
+            stmt_cert.close();
+            rs_cert.close();
+            executor.shutdown();
+
+            if (!executor.awaitTermination(10, TimeUnit.MINUTES)) {
+                System.out.println(getTime() + " timeout");
+            } else {
+                System.out.println(getTime() + " refreshing successfully for " + count + " accounts!");
+            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -103,7 +129,7 @@ public class CacheManager {
     public void refreshCache(LoginManager login) {
         /* 新帳號登入 */
         try {
-            PreparedStatement update = fetchAllData(login);
+            PreparedStatement update = fetchSomeData(login, true);
             update.executeUpdate();
             update.close();
         } catch (Exception e) {
@@ -151,18 +177,55 @@ public class CacheManager {
         return null;
     }
 
-    private PreparedStatement fetchAllData(LoginManager login) throws IOException, ErrorException, SQLException {
+    private PreparedStatement fetchSomeData(LoginManager login, boolean all) throws IOException, ErrorException, SQLException {
         /* 取得新資料 */
-        JSONObject absent = ReadAbsent.read(login.fetchPageData(ABSENT));
-//            JSONObject history_absent       = ReadHistoryAbsent.read(login.fetchPageData(HISTORY_ABSENT));
-        JSONObject rewards = ReadRewards.read(login.fetchPageData(REWARDS));
-//            JSONObject score                = ReadScore.read(login.fetchPageData(SCORE));
-        JSONObject history_rewards = ReadHistoryRewards.read(login.fetchPageData(HISTORY_REWARDS));
-        JSONObject punished_cancel_log = ReadPunishedCancelLog.read(login.fetchPageData(PUNISHED_CANCEL_LOG));
-        JSONObject clubs = ReadClubs.read(login.fetchPageData(CLUBS));
-        JSONObject cadres = ReadCadres.read(login.fetchPageData(CADRES));
-        JSONObject history_score = ReadHistoryScore.read(login.fetchPageData(HISTORY_SCORE));
-        JSONObject class_table = ReadClassTable.read(login.fetchPageData(CLASS_TABLE));
+        JSONObject absent;
+        JSONObject history_absent = null;
+        JSONObject rewards;
+        JSONObject score = null;
+        JSONObject history_rewards = null;
+        JSONObject punished_cancel_log;
+        JSONObject clubs = null;
+        JSONObject cadres = null;
+        JSONObject history_score = null;
+        JSONObject class_table = null;
+
+        absent = ReadAbsent.read(login.fetchPageData(ABSENT));
+        rewards = ReadRewards.read(login.fetchPageData(REWARDS));
+//        score = ReadScore.read(login.fetchPageData(SCORE));
+        punished_cancel_log = ReadPunishedCancelLog.read(login.fetchPageData(PUNISHED_CANCEL_LOG));
+
+
+        if (all) {
+//            history_absent = ReadHistoryAbsent.read(login.fetchPageData(HISTORY_ABSENT));
+            history_rewards = ReadHistoryRewards.read(login.fetchPageData(HISTORY_REWARDS));
+            clubs = ReadClubs.read(login.fetchPageData(CLUBS));
+            cadres = ReadCadres.read(login.fetchPageData(CADRES));
+            history_score = ReadHistoryScore.read(login.fetchPageData(HISTORY_SCORE));
+            class_table = ReadClassTable.read(login.fetchPageData(CLASS_TABLE));
+
+            if (history_rewards == null) {
+                System.out.println(login.fetchPageData(ABSENT));
+                history_rewards = new JSONObject("{\"error\": \"I'll fix this bug soon (0x04)\"}");
+            }
+            if (clubs == null) {
+                System.out.println(login.fetchPageData(ABSENT));
+                clubs = new JSONObject("{\"error\": \"I'll fix this bug soon (0x06)\"}");
+            }
+            if (cadres == null) {
+                System.out.println(login.fetchPageData(ABSENT));
+                cadres = new JSONObject("{\"error\": \"I'll fix this bug soon (0x07)\"}");
+            }
+            if (history_score == null) {
+                System.out.println(login.fetchPageData(ABSENT));
+                history_score = new JSONObject("{\"error\": \"I'll fix this bug soon (0x08)\"}");
+            }
+            if (class_table == null) {
+                System.out.println(login.fetchPageData(ABSENT));
+                class_table = new JSONObject("{\"error\": \"I'll fix this bug soon (0x09)\"}");
+            }
+        }
+
 
         if (absent == null) {
             System.out.println(login.fetchPageData(ABSENT));
@@ -172,43 +235,32 @@ public class CacheManager {
             System.out.println(login.fetchPageData(ABSENT));
             rewards = new JSONObject("{\"error\": \"I'll fix this bug soon (0x03)\"}");
         }
-        if (history_rewards == null) {
-            System.out.println(login.fetchPageData(ABSENT));
-            history_rewards = new JSONObject("{\"error\": \"I'll fix this bug soon (0x04)\"}");
-        }
         if (punished_cancel_log == null) {
             System.out.println(login.fetchPageData(ABSENT));
             punished_cancel_log = new JSONObject("{\"error\": \"I'll fix this bug soon (0x05)\"}");
         }
-        if (clubs == null) {
-            System.out.println(login.fetchPageData(ABSENT));
-            clubs = new JSONObject("{\"error\": \"I'll fix this bug soon (0x06)\"}");
-        }
-        if (cadres == null) {
-            System.out.println(login.fetchPageData(ABSENT));
-            cadres = new JSONObject("{\"error\": \"I'll fix this bug soon (0x07)\"}");
-        }
-        if (history_score == null) {
-            System.out.println(login.fetchPageData(ABSENT));
-            history_score = new JSONObject("{\"error\": \"I'll fix this bug soon (0x08)\"}");
-        }
-        if (class_table == null) {
-            System.out.println(login.fetchPageData(ABSENT));
-            class_table = new JSONObject("{\"error\": \"I'll fix this bug soon (0x09)\"}");
-        }
-
+        PreparedStatement update;
         /* 新增進資料庫 */
-        String insert = "INSERT OR REPLACE INTO 'cache' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement update = conn_cache.prepareStatement(insert);
-        update.setString(1, login.id);
-        update.setString(2, absent.toString());
-        update.setString(3, rewards.toString());
-        update.setString(4, history_rewards.toString());
-        update.setString(5, punished_cancel_log.toString());
-        update.setString(6, clubs.toString());
-        update.setString(7, cadres.toString());
-        update.setString(8, history_score.toString());
-        update.setString(9, class_table.toString());
+        if (all) {
+            String insert = "INSERT OR REPLACE INTO 'cache' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            update = conn_cache.prepareStatement(insert);
+            update.setString(1, login.id);
+            update.setString(2, absent.toString());
+            update.setString(3, rewards.toString());
+            update.setString(4, history_rewards.toString());
+            update.setString(5, punished_cancel_log.toString());
+            update.setString(6, clubs.toString());
+            update.setString(7, cadres.toString());
+            update.setString(8, history_score.toString());
+            update.setString(9, class_table.toString());
+        } else {
+            String insert = "UPDATE 'cache' SET absent = ?, rewards = ?, punished_cancel_log = ? WHERE id = ?";
+            update = conn_cache.prepareStatement(insert);
+            update.setString(1, absent.toString());
+            update.setString(2, rewards.toString());
+            update.setString(3, punished_cancel_log.toString());
+            update.setString(4, login.id);
+        }
 
         return update;
     }

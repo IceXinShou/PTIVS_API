@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static tw.xserver.Main.cache;
+import static tw.xserver.Util.getTime;
 
 public class GetHandler {
     private final ChannelHandlerContext ctx;
@@ -112,6 +113,8 @@ public class GetHandler {
 
         /* 回覆並結束連線 */
         ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
+
+        System.out.println(getTime() + " GET: " + args[3].toLowerCase() + ' ' + authManager.id);
     }
 
     @Nullable

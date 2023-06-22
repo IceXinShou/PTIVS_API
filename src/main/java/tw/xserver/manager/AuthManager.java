@@ -52,6 +52,8 @@ public class AuthManager {
         }
 
         loginManager = new LoginManager(id, pwd);
+        this.id = id;
+        cache.refreshCache(loginManager);
         String clientToken = createClientToken(id, pwd);
         account = new Account(id, ip, pwd, clientToken, createServerToken(clientToken, ip));
         certificate.add(account);

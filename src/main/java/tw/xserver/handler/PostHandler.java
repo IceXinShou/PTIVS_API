@@ -6,6 +6,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import tw.xserver.manager.AuthManager;
+import tw.xserver.manager.CacheManager;
 import tw.xserver.manager.JSONResponseManager;
 import tw.xserver.util.ErrorException;
 
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static tw.xserver.Main.cache;
+import static tw.xserver.Util.getTime;
 
 class PostHandler {
     private final ChannelHandlerContext ctx;
@@ -80,8 +82,9 @@ class PostHandler {
         } finally {
             /* 回覆並結束連線 */
             ctx.writeAndFlush(response.getResponse()).addListener(ChannelFutureListener.CLOSE);
-            if (authManager != null)
-                cache.refreshCache(authManager.loginManager);
+            if (authManager != null) {
+                System.out.println(getTime() + " POST: login " + authManager.id);
+            }
         }
     }
 

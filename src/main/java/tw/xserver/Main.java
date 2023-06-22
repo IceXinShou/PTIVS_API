@@ -30,13 +30,14 @@ public class Main extends ChannelInboundHandlerAdapter {
     private static int port;
     public static CertificateManager certificate;
     public static CacheManager cache;
+    private WebSocket webSocket;
 
     public static void main(String[] args) throws Exception {
         /* 輸入參數 */
         new Main(args).run();
     }
 
-    public Main(String[] args) throws SSLException, SQLException {
+    public Main(String[] args) throws Exception {
         /* 主程式開始 */
         /* 初始化參數 */
         port = Integer.parseInt(args[0]);
@@ -52,6 +53,8 @@ public class Main extends ChannelInboundHandlerAdapter {
 
         /* 初始快取資料庫 */
         cache = new CacheManager();
+
+//        webSocket = new WebSocket();
     }
 
     public void run() throws Exception {
