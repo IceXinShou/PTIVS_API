@@ -65,7 +65,7 @@ public class CacheManager {
             /* 取得所有帳號資訊 */
             rs_cert = stmt_cert.executeQuery("SELECT * FROM 'certificate';");
 
-            System.out.println(getTime() + " starting updating...");
+            System.out.println(getTime() + " Starting updating...");
             int count = 0;
             while (rs_cert.next()) {
                 count++;
@@ -76,15 +76,15 @@ public class CacheManager {
                             new String(Base64.getDecoder().decode(rs_cert.getString("pwd")))
                     );
 
-                    System.out.println(getTime() + " updating cache: " + id);
+                    System.out.println(getTime() + " Updating cache: " + id);
                     executor.submit(() -> {
                         try {
                             PreparedStatement update = fetchSomeData(login, false);
                             update.executeUpdate();
                             update.close();
-                            System.out.println(getTime() + " updated cache successfully: " + login.id);
+                            System.out.println(getTime() + " Updated cache successfully: " + login.id);
                         } catch (Exception e) {
-                            System.out.println(getTime() + " updated cache error: " + login.id);
+                            System.out.println(getTime() + " Updated cache error: " + login.id);
                             e.printStackTrace();
                         }
                     });
@@ -98,9 +98,9 @@ public class CacheManager {
             executor.shutdown();
 
             if (!executor.awaitTermination(10, TimeUnit.MINUTES)) {
-                System.out.println(getTime() + " timeout");
+                System.out.println(getTime() + " Timeout");
             } else {
-                System.out.println(getTime() + " refreshing successfully for " + count + " accounts!");
+                System.out.println(getTime() + " Refreshing successfully for " + count + " accounts!");
             }
 
 

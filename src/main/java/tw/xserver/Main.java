@@ -15,9 +15,7 @@ import tw.xserver.handler.RateLimitHandler;
 import tw.xserver.manager.CacheManager;
 import tw.xserver.manager.CertificateManager;
 
-import javax.net.ssl.SSLException;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.Base64;
 
 import static tw.xserver.Util.getTime;
@@ -30,7 +28,6 @@ public class Main extends ChannelInboundHandlerAdapter {
     private static int port;
     public static CertificateManager certificate;
     public static CacheManager cache;
-    private WebSocket webSocket;
 
     public static void main(String[] args) throws Exception {
         /* 輸入參數 */
@@ -53,8 +50,6 @@ public class Main extends ChannelInboundHandlerAdapter {
 
         /* 初始快取資料庫 */
         cache = new CacheManager();
-
-//        webSocket = new WebSocket();
     }
 
     public void run() throws Exception {
@@ -89,7 +84,7 @@ public class Main extends ChannelInboundHandlerAdapter {
             /* 綁定連接埠 */
             ChannelFuture f = b.bind(port).sync();
 
-            System.out.println(getTime() + " server started");
+            System.out.println(getTime() + " Server started");
 
             f.channel().closeFuture().sync(); // 等待程式結束並關閉端口
         } finally {

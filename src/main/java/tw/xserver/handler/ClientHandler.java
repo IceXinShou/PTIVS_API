@@ -31,19 +31,22 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
+        HttpMethod method = request.method();
+        HttpHeaders headers = request.headers();
         String uri = request.uri();
         String[] args = uri.split("/");
+
+        /* WebSocket Connection */
+        if ("Upgrade".equalsIgnoreCase(headers.get(HttpHeaderNames.CONNECTION)) &&
+                "WebSocket".equalsIgnoreCase(headers.get(HttpHeaderNames.UPGRADE))) {
+            ctx.pipeline().replace(this, "WebSocketHandler", new WebSocketHandler(ctx, request));
+            return;
+        }
 
         /* 過濾請求 */
         if (args.length == 2 && args[1].equals("test")) {
             // 回傳測試內容
             sendTest(ctx);
-            return;
-        }
-
-        if (args.length < 2 || !args[1].equals("ptivs")) {
-            // 過濾不當請求
-            sendError(ctx, "unsupported uri", HttpResponseStatus.NOT_FOUND);
             return;
         }
 
@@ -53,9 +56,13 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
+        if (args.length < 2 || !args[1].equals("ptivs")) {
+            // 過濾不當請求
+            sendError(ctx, "unsupported uri", HttpResponseStatus.NOT_FOUND);
+            return;
+        }
+
         /* 初始化參數 */
-        HttpMethod method = request.method();
-        HttpHeaders headers = request.headers();
         String realIP = headers.get("CF-Connecting-IP");
         if (realIP == null)
             realIP = headers.get("Host").split(":")[0];
@@ -102,7 +109,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
-    private void sendError(ChannelHandlerContext ctx, String message, HttpResponseStatus status) {
+    public static void sendError(ChannelHandlerContext ctx, String message, HttpResponseStatus status) {
         JSONResponseManager response = new JSONResponseManager(ctx);
         response.status = status;
         response.error = message;
