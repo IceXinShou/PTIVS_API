@@ -4,10 +4,13 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import tw.xserver.analyze_HTML.*;
 import tw.xserver.util.ErrorException;
+import tw.xserver.util.PageKey;
 
 import java.io.IOException;
 import java.sql.*;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -79,7 +82,13 @@ public class CacheManager {
                     System.out.println(getTime() + " Updating cache: " + id);
                     executor.submit(() -> {
                         try {
-                            PreparedStatement update = fetchSomeData(login, false);
+                            Map<PageKey, JSONObject> data = fetchSomeData(login, false);
+                            String insert = "UPDATE 'cache' SET absent = ?, rewards = ?, punished_cancel_log = ? WHERE id = ?";
+                            PreparedStatement update = conn_cache.prepareStatement(insert);
+                            update.setString(1, data.get(ABSENT).toString());
+                            update.setString(2, data.get(REWARDS).toString());
+                            update.setString(3, data.get(PUNISHED_CANCEL_LOG).toString());
+                            update.setString(4, login.id);
                             update.executeUpdate();
                             update.close();
                             System.out.println(getTime() + " Updated cache successfully: " + login.id);
@@ -129,7 +138,19 @@ public class CacheManager {
     public void refreshCache(LoginManager login) {
         /* 新帳號登入 */
         try {
-            PreparedStatement update = fetchSomeData(login, true);
+            Map<PageKey, JSONObject> data = fetchSomeData(login, true);
+            String insert = "INSERT OR REPLACE INTO 'cache' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement update = conn_cache.prepareStatement(insert);
+
+            update.setString(1, login.id);
+            update.setString(2, data.get(ABSENT).toString());
+            update.setString(3, data.get(REWARDS).toString());
+            update.setString(4, data.get(HISTORY_REWARDS).toString());
+            update.setString(5, data.get(PUNISHED_CANCEL_LOG).toString());
+            update.setString(6, data.get(CLUBS).toString());
+            update.setString(7, data.get(CADRES).toString());
+            update.setString(8, data.get(HISTORY_SCORE).toString());
+            update.setString(9, data.get(CLASS_TABLE).toString());
             update.executeUpdate();
             update.close();
         } catch (Exception e) {
@@ -156,6 +177,7 @@ public class CacheManager {
                 return null;
 
             return new JSONObject(data);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -177,7 +199,7 @@ public class CacheManager {
         return null;
     }
 
-    private PreparedStatement fetchSomeData(LoginManager login, boolean all) throws IOException, ErrorException, SQLException {
+    private Map<PageKey, JSONObject> fetchSomeData(LoginManager login, boolean all) throws IOException, ErrorException, SQLException {
         /* 取得新資料 */
         JSONObject absent;
         JSONObject history_absent = null;
@@ -226,7 +248,6 @@ public class CacheManager {
             }
         }
 
-
         if (absent == null) {
             System.out.println(login.fetchPageData(ABSENT));
             absent = new JSONObject("{\"error\": \"I'll fix this bug soon (0x02)\"}");
@@ -239,29 +260,27 @@ public class CacheManager {
             System.out.println(login.fetchPageData(ABSENT));
             punished_cancel_log = new JSONObject("{\"error\": \"I'll fix this bug soon (0x05)\"}");
         }
-        PreparedStatement update;
-        /* 新增進資料庫 */
+
+        Map<PageKey, JSONObject> output = new HashMap<>();
         if (all) {
-            String insert = "INSERT OR REPLACE INTO 'cache' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            update = conn_cache.prepareStatement(insert);
-            update.setString(1, login.id);
-            update.setString(2, absent.toString());
-            update.setString(3, rewards.toString());
-            update.setString(4, history_rewards.toString());
-            update.setString(5, punished_cancel_log.toString());
-            update.setString(6, clubs.toString());
-            update.setString(7, cadres.toString());
-            update.setString(8, history_score.toString());
-            update.setString(9, class_table.toString());
+            output.put(ABSENT, absent);
+            output.put(REWARDS, rewards);
+            output.put(HISTORY_ABSENT, history_rewards);
+            output.put(PUNISHED_CANCEL_LOG, punished_cancel_log);
+            output.put(CLUBS, clubs);
+            output.put(CADRES, cadres);
+            output.put(HISTORY_SCORE, history_score);
+            output.put(CLASS_TABLE, class_table);
         } else {
-            String insert = "UPDATE 'cache' SET absent = ?, rewards = ?, punished_cancel_log = ? WHERE id = ?";
-            update = conn_cache.prepareStatement(insert);
-            update.setString(1, absent.toString());
-            update.setString(2, rewards.toString());
-            update.setString(3, punished_cancel_log.toString());
-            update.setString(4, login.id);
+            output.put(ABSENT, absent);
+            output.put(REWARDS, rewards);
+            output.put(PUNISHED_CANCEL_LOG, punished_cancel_log);
         }
 
-        return update;
+        return output;
+    }
+
+    private void sendWebsocketNotify() {
+
     }
 }
